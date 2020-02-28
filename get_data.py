@@ -6,11 +6,14 @@ from astropy.table import Table
 def read_data(data_row_index):
     table = Table.read('/Users/massissiliahamadouche/Downloads/VANDELS_CDFS_HST_PHOT_v1.0.fits')
     df = table.to_pandas()
+    #print(df)
     df.index = df['ID']
-
+    df.index2 = df['CAT']
     data_row = df.index[data_row_index]
 
+    data_object_type = df.index2[data_row_index]
 
+    obj_ID = 'CDFS'+ str(data_object_type) + str(data_row)
     print(data_row)
     print(data_row_index)
 
@@ -28,7 +31,7 @@ def read_data(data_row_index):
             table_errors[i] = 9.9*10**99
             table_data[i] = 0.
 
-    return table_data, table_errors
+    return obj_ID, table_data, table_errors
 #print(table_errors)
 #print(np.log10(31622776601.683792))
 

@@ -12,7 +12,7 @@ from astropy.table import Table
 
 
 eff_wavs = ewavs.filter_wavs()
-fluxes_obs_raw, fluxerrs_obs_raw = gd.read_data(2918)
+ID, fluxes_obs_raw, fluxerrs_obs_raw = gd.read_data(2918)
 
 print("DATA", fluxes_obs_raw, "ERRS", fluxerrs_obs_raw)
 
@@ -33,7 +33,7 @@ models = flux_grid
 
 #models  = fits.open('bc03_fluxes.fits')
 
-print(models)
+#print(models)
 
 
 total_models = 50*len(redshifts)
