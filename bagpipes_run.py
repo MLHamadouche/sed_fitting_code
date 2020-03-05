@@ -20,11 +20,9 @@ model_components["dust"] = dust
 #/Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters
 #filters = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 
+filters_list = np.loadtxt("//Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters/massi.filt_list", dtype='str')
 
-
-filters_list = np.loadtxt("/Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters/filters_list.txt", dtype='str')
-
-print(filters_list)
+#print(filters_list)
 
 model = pipes.model_galaxy(model_components, filt_list=filters_list)
 

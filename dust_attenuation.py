@@ -7,15 +7,16 @@ import eff_wavs_filter_function as ewavs
 
 #calzetti  law
 
+#print(eff_wavs)
 def dust(eff_wavs):
-
-    A_lam = np.zeros(eff_wavs.shape)
+    k_lam =[]
 
     for i in eff_wavs:
-        if 6300 <= i <= 22000:
-            A_lam = 4.05 + 2.659(-1.857 + (1.040/i))
 
-        elif 1200 < i < 6300:
-            A_lam = 4.05 + 2.659(-2.156 +1.509/i - 0.198/i**2 + 0.011/i**3)
+        k_lam.append((4.05 + 2.659*(-1.857 + (1.040/i)))/4.05)
 
-    return A_lam
+    return(k_lam)
+#e_wavs = ewavs.filter_wavs()
+#eff_wavs = np.array(e_wavs)
+#k_lam_ = dust(eff_wavs)
+#print(k_lam_)
