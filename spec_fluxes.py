@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import spectres
 import time
-
+import astropy.io.fits as fits
 
 gen_file = "/Users/massissiliahamadouche/bc03/Miles_Atlas/Kroupa_IMF/bc2003_hr_xmiless_m62_kroup_ssp.ised_ASCII"
 
@@ -18,7 +18,6 @@ lambda_ = np.array(lambda_bc03)
 wavelengths = lambda_[1:]
 #new_wavs = np.arange(1000., 70000., 10.)
 #new_fluxes = spectres.spectres(new_wavs, lambda_[1:], fluxes)
-
 def spectrum():
     models = ["m22","m32", "m42","m52", "m62", "m72", "m82"]
 
@@ -37,6 +36,21 @@ def spectrum():
 
     return ages, wavelengths, flux_grid
 
-#ages, waves, flux_grid = spectrum()
-#print(flux_grid[0][30][-1])
+
 #print(len(flux_grid))
+#import pickle
+
+#arr = {'ages': ages, 'wavelengths': wavelengths, 'fluxes':flux_grid}
+
+#print(arr)
+#pickle.dump( arr, open( "awf_spec.p", "wb" ))
+
+#file = pickle.load( open( "awf_spec.p", "rb" ) )
+#ages, waves,flux_grid = spectrum()
+#ages = np.array(ages)
+#print(file['fluxes'])
+#models = flux_grid
+
+#print(models[0:5])
+
+#fits.writeto("awf_spec.p", arr)

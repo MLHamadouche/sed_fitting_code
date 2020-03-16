@@ -1,0 +1,14 @@
+filters/CH1
+filters/CH2
+filters/f098m
+filters/f105w
+filters/f125w
+filters/f160w
+filters/f435w
+filters/f606w
+filters/f775w
+filters/f814w
+filters/f850lp
+filters/HAWKI_K
+filters/ISAAC_Ks
+filters/VIMOS_U

@@ -14,6 +14,7 @@ def read_data(data_row_index):
     data_object_type = df.index2[data_row_index]
 
     obj_ID = 'CDFS'+ str(data_object_type) + str(data_row)
+    
     print(data_row)
     print(data_row_index)
 
@@ -32,7 +33,11 @@ def read_data(data_row_index):
             table_data[i] = 0.
 
     return obj_ID, table_data, table_errors
+
+
+
 #print(table_errors)
 #print(np.log10(31622776601.683792))
+
 
 #print(10**10.5)

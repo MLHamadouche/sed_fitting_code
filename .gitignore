@@ -1,5 +1,6 @@
 .DS_Store
-
+awf_spec.p
+filters
 #################################
 
 # Standard .gitignore from github:

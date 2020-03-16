@@ -9,14 +9,13 @@ import spec_fluxes as sf
 def photometry(waves, fluxes, redshift):
 
     filters = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
-    #age, waves, fluxes = new_spec_func.spectrum(metallicity)
+
     filter_curves = []
 
     for filter in filters:
         filter_curves.append(np.loadtxt("filters/"+str(filter)))
 
     new_filter_curves = []
-
     eff_wavs = []
 
     for f in filter_curves:
