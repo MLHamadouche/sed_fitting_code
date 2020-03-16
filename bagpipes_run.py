@@ -26,9 +26,16 @@ filters = ["filters/filters_m/CH2",
             "filters/filters_m/f160w","filters/filters_m/f435w","filters/filters_m/f606w",
             "filters/filters_m/f775w","filters/filters_m/f814w", "filters/filters_m/f850lp"]
 
+filters_list = np.loadtxt("//Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters/massi.filt_list", dtype='str')
 
+<<<<<<< HEAD
 
 model = pipes.model_galaxy(model_components, filt_list = filters)
+=======
+#print(filters_list)
+
+model = pipes.model_galaxy(model_components, filt_list=filters_list)
+>>>>>>> 2abeb31ac48754858da9422362ec3673340cef52
 
 fig = model.plot()
 fig = model.sfh.plot()

@@ -22,15 +22,30 @@ def catalog(ID_list):
 
 
         eff_wavs = ewavs.filter_wavs()
+<<<<<<< HEAD
+=======
+        #ages, waves,flux_grid = sf.spectrum()
+>>>>>>> 2abeb31ac48754858da9422362ec3673340cef52
 
+        #ages, waves,flux_grid = sf.spectrum()
+        #ages = np.array(ages)
         models = flux_grid
 
+<<<<<<< HEAD
         redshifts = np.arange(0.5,3.5,0.1)
 
 
         dust_att = np.arange(0.5,2.0,0.1)
 
         total_models = 35*len(redshifts)*len(dust_att)
+=======
+        redshifts = np.arange(0.9,2.1, 0.1)
+
+
+        dust_att = np.arange(0.9,2.0,0.1)
+
+        total_models = 40*len(redshifts)*len(dust_att)
+>>>>>>> 2abeb31ac48754858da9422362ec3673340cef52
         print(f'total no. models:{total_models}')
 
 
@@ -48,11 +63,16 @@ def catalog(ID_list):
             redshift = redshifts[z]
             for d in range(len(dust_att)):
                 A_v = dust_att[d]
+<<<<<<< HEAD
                 for a in range(100,180,1):
+=======
+                for a in range(100,141,1):
+>>>>>>> 2abeb31ac48754858da9422362ec3673340cef52
                     model_flux = np.copy(models[4][a,:])
 
                     time0 = time.time()
 
+<<<<<<< HEAD
                     no_models_done = a + d*35 + 35*len(dust_att)*z
                     #no_models_done = d + a*len(dust_att) + (200)*z*len(dust_att)
                     #if not no_models_done % 1000:
@@ -60,6 +80,12 @@ def catalog(ID_list):
                     k_lam = dusty.dust_masks(waves)
                     #print(model_flux)
                     model_flux *= 10**(-0.4*A_v*k_lam)
+=======
+                    no_models_done = a + d*40 + 40*len(dust_att)*z
+                    #no_models_done = d + a*len(dust_att) + (200)*z*len(dust_att)
+                    #if not no_models_done % 1000:
+                    print("Tried", no_models_done, "/", total_models, " models")
+>>>>>>> 2abeb31ac48754858da9422362ec3673340cef52
 
                     new_fluxes = np.copy(pf.photometry(waves, model_flux, redshift))
 
@@ -67,8 +93,18 @@ def catalog(ID_list):
                     #print(f'new fluxes:{new_fluxes}')
                     best_mass = np.sum((new_fluxes*fluxes_obs)/(fluxerrs_obs**2))/np.sum((new_fluxes**2)/(fluxerrs_obs**2))
 
+<<<<<<< HEAD
                     model = new_fluxes*best_mass
                     #print(f'model values:{model}')
+=======
+                    model_f = new_fluxes*best_mass
+                    #print(f'model values:{model}')
+                    k_lam = dusty.dust_masks(eff_wavs)
+
+                    for wav in range(len(k_lam)):
+                        model=model_f*10**(0.4*0.44*A_v*k_lam[wav])
+
+>>>>>>> 2abeb31ac48754858da9422362ec3673340cef52
                     diffs= model-fluxes_obs
                     #print(f'fluxes: {fluxes_obs}')
                     #print(f'fluxerrs: {fluxerrs_obs}')
@@ -114,8 +150,26 @@ def catalog(ID_list):
 
     return obj_ID, best_redshift, bestest_mass, np.log10(bestest_mass), ages[best_age], best_dust
 
+<<<<<<< HEAD
 ID_list = [6,31]
+=======
+ID_list = [6]
+>>>>>>> 2abeb31ac48754858da9422362ec3673340cef52
 print(ID_list)
 
 obj_ID, best_z, best_m, log_m, best_a, best_dust = catalog(ID_list)
 #input()
+<<<<<<< HEAD
+=======
+
+col1 = fits.Column(name='Obj_ID', format='10A', array=str(obj_ID))
+col2 = fits.Column(name='z', format='10E', array=best_z)
+col3= fits.Column(name='mass', format='10E', array=best_m)
+col4= fits.Column(name='log mass', format='10E', array=log_m)
+col5 = fits.Column(name='age', format='10E', array=best_a)
+col6 = fits.Column(name='Av', format='10E',  array=best_dust)
+hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col5, col6])
+print(hdu.columns)
+
+print(hdu)
+>>>>>>> 2abeb31ac48754858da9422362ec3673340cef52
