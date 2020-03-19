@@ -13,14 +13,14 @@ class Filters:
         self.fluxes  = fluxes
         self.load_filter_files()
         self.calc_eff_wavs()
-
+        self.filter_interp()
 
 
     def load_filter_files(self):
         filter_curves = []
 
         for filter in self.filters:
-            filter_curves.append(np.loadtxt("filters/"+str(filter)))
+            filter_curves.append(np.loadtxt("/filters/"+str(filter)))
 
         self.filter_curves = filter_curves
 
@@ -35,7 +35,7 @@ class Filters:
             eff_wavs.append(np.sum(wav_filter*flux_filter)/np.sum(flux_filter))
 
         self.eff_wavs = eff_wavs
-        
+
 
     def filter_interp(self, redshift, wavelengths):
         new_filter_curves = []
@@ -58,6 +58,6 @@ model = flux_grid[4][150, :]
 
 filter_list = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 waves = np.array(waves)
-filter_thing = Filters(filter_list, waves, model)
+filter_thing = Filters(filter_list)
 
 print(filter_thing)
