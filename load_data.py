@@ -21,8 +21,8 @@ def load_catalog_data(data_array):
 
     return _cat[data_array], cat_ind, cat_err_ind
 
-data = np.arange(5)
+#data = np.arange(5)
 
-ID, flux, errs = load_catalog_data(data)
+#ID, flux, errs = load_catalog_data(data)
 
-print(f' ID:{ID}, flux: {flux}, errs: {errs}')
+#print(f' ID:{ID}, flux: {flux}, errs: {errs}')

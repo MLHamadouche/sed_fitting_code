@@ -26,7 +26,7 @@ print("DATA", fluxes_obs_raw, "ERRS", fluxerrs_obs_raw)
 fluxes_obs = cf.conversion_func(fluxes_obs_raw, eff_wavs)
 fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, eff_wavs)
 
-flux_model_grid = np.ones_like(fluxes_obs_raw)
+flux_model_grid = np.zeros_like(fluxes_obs_raw)
 print(flux_model_grid.shape)
 #redshifts = np.arange(0.9, 1.16, 0.01)
 
@@ -38,16 +38,12 @@ time_start = time.time()
 import pickle
 
 file = pickle.load( open( "awf_spec.p", "rb" ) )
-#ages, waves,flux_grid = spectrum()
 ages = file['ages']
 flux_grid = file['fluxes']
 waves = file['wavelengths']
-#ages, waves,flux_grid = sf.spectrum()
-#ages = np.array(ages)
 models = flux_grid
 
 print(models[4].shape)
-
 
 dust_att = np.arange(0.,0.5,0.1)
 #print(len(dust_att))
@@ -55,7 +51,7 @@ dust_att = np.arange(0.,0.5,0.1)
 total_models = 81*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
 
-new_fluxes = np.array((14,5))
+
 
 for z in range(len(redshifts)):
     redshift = redshifts[z]
@@ -86,7 +82,7 @@ for z in range(len(redshifts)):
             model = new_fluxes[data]*best_mass
             #print(f'model values:{model}')
 
-                #print(f'model fluxes w/ dust:{model}')
+            #print(f'model fluxes w/ dust:{model}')
             diffs= model-fluxes_obs
             #print(f'fluxes: {fluxes_obs}')
             #print(f'fluxerrs: {fluxerrs_obs}')
@@ -107,31 +103,7 @@ for z in range(len(redshifts)):
                 best_dust = A_v
                 print(redshift, ages[a], A_v, chisq)
 
-            """
-            model = new_fluxes*best_mass
-            #print(f'model values:{model}')
 
-                #print(f'model fluxes w/ dust:{model}')
-            diffs= model-fluxes_obs
-            #print(f'fluxes: {fluxes_obs}')
-            #print(f'fluxerrs: {fluxerrs_obs}')
-            #print(f'diffs: {diffs}')
-
-            chisq = np.sum((diffs**2)/(fluxerrs_obs**2))
-
-
-
-            #print(f'chisq: {chisq}')
-            #print(f'time phot in loop taken: {np.round(time.time() - time0, 3)}')
-            #input()
-            if chisq<best_chisq:
-                best_chisq = chisq
-                best_redshift = redshift
-                best_age = a
-                bestest_mass = best_mass
-                best_dust = A_v
-                print(redshift, ages[a], A_v, chisq)
-            """
 
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
