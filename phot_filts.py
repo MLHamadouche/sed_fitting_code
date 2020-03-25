@@ -14,9 +14,12 @@ def photometry(waves, fluxes, redshift):
 
     for filter in filters:
         filter_curves.append(np.loadtxt("filters/"+str(filter)))
+    #print(f'filter_curves.shape: {filter_curves.shape}')
 
     new_filter_curves = []
     eff_wavs = []
+    #filter_interpol = np.zeros_like(len(redshift))
+
 
     for f in filter_curves:
         flux_filter = f[:,1]/np.max(f[:,1])
@@ -25,6 +28,7 @@ def photometry(waves, fluxes, redshift):
         filter_interpol = np.interp(waves*(1 + redshift), wav_filter, flux_filter, left=0, right=0) # shift Wavelengths by factor of redshift to the left to get lambda_obs
         new_filter_curves.append(filter_interpol)
 
+    print(f'new_filter_curves: {new_filter_curves}')
     c = 2.99792458*10**10 #cms/s cgs units
     #fluxes*=(3.826*10**33)#to get in ergs/s/Angstrom
 
@@ -40,17 +44,24 @@ def photometry(waves, fluxes, redshift):
     #print("l_dist=", l_dist)
     #print("lum area = ",lum_area)
     f_lam = fluxes/(lum_area)
-
+    print(f'fluxes.shape: {f_lam.shape}')
     #print(f_lam)
 
-    new_fluxes = np.zeros((14))
-    #print("new fluxes", new_fluxes)
+    #new_fluxes = np.expand_dims(np.zeros((14)), axis = 1)*np.expand_dims(np.ones(len(redshift)), axis = 0)
+
     # model photometry
+    print(f'waves.shape: {waves.shape}')
+
+    new_fluxes = []
+    #print(new_fluxes)
+    #new_filter_curves = np.expand_dims(new_filter_curves, axis =1)
+    #print(f'new_filter_curves.shape: {new_filter_curves.shape}')
+    #new_filter_curves = np.expand_dims(new_filter_curves, axis = 0)
+    #print(new_filter_curves[:,1].shape)
+
     for m in range(14):
         f_lam_x_filters = f_lam*new_filter_curves[m]*waves
         new_fluxes[m] = (np.trapz(f_lam_x_filters, x=waves))/(np.trapz(new_filter_curves[m]*waves, x=waves))
-
-
     return new_fluxes
 
 #ages, waves,flux_grid = sf.spectrum()

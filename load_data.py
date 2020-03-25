@@ -16,8 +16,8 @@ def load_catalog_data(data_array):
     catalog_file.index = catalog_file['ID']
     _cat = catalog_file.index
 
-    cat_ind = catalog_file.loc[_cat[data_array], flux_cols]
-    cat_err_ind = catalog_file.loc[_cat[data_array], flux_errs_cols]
+    cat_ind = catalog_file.loc[_cat[data_array], flux_cols].values
+    cat_err_ind = catalog_file.loc[_cat[data_array], flux_errs_cols].values
 
     return _cat[data_array], cat_ind, cat_err_ind
 
