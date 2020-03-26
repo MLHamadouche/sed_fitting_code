@@ -10,19 +10,37 @@ flux_errs_cols = ['CH2_err', 'Ks_HAWKI_err','Ks_ISAAC_err','CH1_err','VIMOS_U_er
 catalog_file = Table.read('/Users/massissiliahamadouche/Downloads/VANDELS_CDFS_HST_PHOT_v1.0.fits').to_pandas()
 
 def load_catalog_data(data_array):
+    catalog_IDs = catalog_file['ID']
+    catalog_IDs.index = 'CDFS' + catalog_file['ID'].astype(str).str.pad(6, side="left", fillchar="0") + catalog_file['CAT'].str.decode("utf-8")
+    _cat = catalog_IDs[data_array]
+    #print(_cat)
+    #print(catalog_file.index[0])
 
-    IDs = (str(i) for i in data_array)
+    #print("CDFS"+table["ID"].astype(str).str.pad(6, side="left", fillchar="0")+table["CAT"].astype(str))
+    #catalog_file.index = catalog_file["ID"]
+    #print(f'catalog_file.index: {catalog_file.index}')
+    #catalog_file.index = catalog_file['ID']
 
-    catalog_file.index = catalog_file['ID']
-    _cat = catalog_file.index
+    #_cat= catalog_file.index
+    #print(_cat)
 
-    cat_ind = catalog_file.loc[_cat[data_array], flux_cols].values
-    cat_err_ind = catalog_file.loc[_cat[data_array], flux_errs_cols].values
+    cat_data = catalog_file.loc[_cat, flux_cols].values
+    cat_errs = catalog_file.loc[_cat, flux_errs_cols].values
+    #print(cat_data[0].shape[0])
 
-    return _cat[data_array], cat_ind, cat_err_ind
+    for m in range(len(data_array)):
+        for i in range(cat_data[m].shape[0]):
+            if cat_errs[m][i] < cat_data[m][i]/20.0:
+                cat_errs[m][i] = cat_data[m][i]/20.
 
+            if (cat_errs[m][i] < 0.) or (cat_data[m][i] < 0.):
+                cat_errs[m][i] = 9.9*10**99
+                cat_data[m][i] = 0.
+
+    return _cat, cat_data, cat_errs
+
+#data = ['CDFS000006SELECT', 'CDFS000005MASTER', 'CDFS000007MASTER']
 #data = np.arange(5)
-
 #ID, flux, errs = load_catalog_data(data)
 
 #print(f' ID:{ID}, flux: {flux}, errs: {errs}')
