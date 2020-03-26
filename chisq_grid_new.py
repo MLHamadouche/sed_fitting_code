@@ -13,7 +13,7 @@ from astropy.cosmology import FlatLambdaCDM
 import load_data as ld
 
 eff_wavs = ewavs.filter_wavs()
-data = np.arange(5)
+data = ['CDFS000005MASTER','CDFS000006SELECT','CDFS000007MASTER','CDFS000008MASTER','CDFS000009MASTER']
 ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
 #ID, fluxes_obs_raw, fluxerrs_obs_raw = gd.load_data(2918)
 #print(ID, fluxes_obs_raw, fluxerrs_obs_raw)
@@ -29,12 +29,16 @@ print(f'fluxes_obs.shape:{fluxes_obs.shape}')
 #redshifts = np.arange(0.9, 1.16, 0.01)
 
 redshifts = np.arange(0.2, 3.6, 0.2)
-redshifts = np.expand_dims(redshifts, axis = 1)*np.ones(5)
+#redshifts = np.expand_dims(redshifts, axis = 1)*np.ones(5)
 
 best_chisq = np.ones(5)
 best_chisq*=np.inf
 print(f'best_chisq {best_chisq}')
 print(f'best_chisq.shape {best_chisq.shape}')
+
+best_redshift = np.ones(5)
+best_dust = np.ones(5)
+best_ages = np.ones(5)
 
 time_start = time.time()
 import pickle
@@ -48,16 +52,17 @@ models = flux_grid
 print(f'models[4].shape:{models[4].shape}')
 
 dust_att = np.arange(0.1,4.5,0.5)
-dust_att = np.expand_dims(dust_att, axis = 1)*np.ones(5)
-print(f'len(dust_att): {len(dust_att[1])}')
+#dust_att = np.expand_dims(dust_att, axis = 1)*np.ones(5)
+
 
 total_models = 61*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
 
-for z in range(len(redshifts[0])):
-    redshift = redshifts[z]
-    for d in range(len(dust_att[0])):
-        A_v = dust_att[d]
+for z in range(len(redshifts)):
+    redshift = redshifts[z]*np.ones(5)
+    print(f'redshift start of loop: {redshift}')
+    for d in range(len(dust_att)):
+        A_v = dust_att[d]*np.ones(5)
         for a in range(100,160,1):
             model_flux = np.copy(models[4][a,:])
 
@@ -68,29 +73,27 @@ for z in range(len(redshifts[0])):
             print("Tried", no_models_done, "/", total_models, " models")
             #model_flux = np.expand_dims(model_flux, axis = 0)
 
-            k_lam = np.expand_dims(dusty.dust_masks(waves), axis = 0)
-
-
-            model_flux = np.expand_dims(model_flux, axis = 0) * np.expand_dims(np.ones(5), axis = 1)
-            print(f'waves shape: {waves.shape}')
-
-            print(f'modelflux shape: {model_flux.shape}')
-            print(f'A_v shape: {A_v.shape}')
+            k_lam = np.expand_dims(np.ones(5), axis = 1)*dusty.dust_masks(waves)
             print(f'k_lam shape: {k_lam.shape}')
-            #print(model_flux)
-            model_flux *= 10**(-0.4*np.expand_dims(A_v, axis = 1)*k_lam)
-            #print(f'A_v.shape: {A_v.shape}')
-            #print(f'redshift.shape: {redshift.shape}')
+
+            model_flux = np.expand_dims(np.ones(5), axis = 1) *model_flux
+            print(f'modelflux shape: {model_flux.shape}')
+
+            #A_v=np.expand_dims(A_v, axis = 1)*np.ones(5)
+            print(f'A_v shape: {A_v.shape}')
+            print(f'A_v: {A_v}')
+
+            print(f'model_flux.shape: {model_flux.shape}')
+
+            model_flux *= 10**(-0.4*np.expand_dims(A_v, axis =1)*k_lam)
 
             print(f'model flux shape: {model_flux.shape}')
             print(f'model fluxes : {model_flux}')
-
+            #new_fluxes = np.expand_dims(np.zeros(5), axis =0)
             new_fluxes = pf.photometry(waves, model_flux, redshift)
 
-            #print(f'new fluxes:{new_fluxes}')
+            print(f'new fluxes:{new_fluxes.shape}')
             #print(new_fluxes.shape)
-            #print(fluxes_obs.shape)
-            #print(fluxerrs_obs.shape)
 
             print(f'sum test: {np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)), axis=1).shape}')
             print(f'sum test bottom: {np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1).shape}')
@@ -98,11 +101,7 @@ for z in range(len(redshifts[0])):
             print(f'best mass shape {best_mass.shape}')
             print(f'best mass {best_mass}')
 
-            #best_redshift  = np.expand_dims(redshift, axis = 1)
-            #best_age = np.expand_dims(a, axis =1)
-            #best_dust = np.expand_dims(A_v, axis =1)
-
-            model = np.expand_dims(new_fluxes, axis=0)*np.expand_dims(best_mass, axis=1)
+            model = new_fluxes*np.expand_dims(best_mass, axis=1)
 
             print(f'model shape:{model.shape}')
 
@@ -115,14 +114,15 @@ for z in range(len(redshifts[0])):
             print(f'chisq {chisq}')
             print(f'chisq_shape {chisq.shape}')
 
-            if (chisq < best_chisq).all :
-                best_chisq = chisq
-                best_redshift = redshift
-                best_age = a
-                bestest_mass = best_mass
-                best_dust = A_v
-                print(redshift, ages[a], A_v, chisq)
-            input()
+            for m in range(len(data)):
+                if (chisq[m] < best_chisq[m]) :
+                    best_chisq = chisq[m]
+                    best_redshift = redshift[m]
+                    best_age = a[m]
+                    bestest_mass = best_mass[m]
+                    best_dust = A_v[m]
+                    print(redshift, ages[a], A_v, chisq)
+
             print(f'time phot in loop taken: {np.round(time.time() - time0, 3)}')
 
 
