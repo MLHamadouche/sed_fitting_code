@@ -35,7 +35,6 @@ best_chisq = np.ones(5)
 best_chisq*=np.inf
 print(f'best_chisq {best_chisq}')
 print(f'best_chisq.shape {best_chisq.shape}')
-
 best_redshift = np.ones(5)
 best_dust = np.ones(5)
 best_ages = np.ones(5)
@@ -51,57 +50,41 @@ models = flux_grid
 
 print(f'models[4].shape:{models[4].shape}')
 
-dust_att = np.arange(0.1,4.5,0.5)
+dust_att = np.arange(0.1,3.6,0.5)
 #dust_att = np.expand_dims(dust_att, axis = 1)*np.ones(5)
 
-
-total_models = 61*len(redshifts)*len(dust_att)
+total_models = 41*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
 
 for z in range(len(redshifts)):
-    redshift = redshifts[z]*np.ones(5)
+    redshift = redshifts[z]
     print(f'redshift start of loop: {redshift}')
     for d in range(len(dust_att)):
-        A_v = dust_att[d]*np.ones(5)
-        for a in range(100,160,1):
+        A_v = dust_att[d]
+        for a in range(110,150,2):
             model_flux = np.copy(models[4][a,:])
-
             time0 = time.time()
 
-            no_models_done = a + d*61 + len(dust_att)*61*z
+            no_models_done = a + d*41 + len(dust_att)*41*z
             #if not no_models_done % 1000:
             print("Tried", no_models_done, "/", total_models, " models")
             #model_flux = np.expand_dims(model_flux, axis = 0)
+            k_lam = dusty.dust_masks(waves)
+            #print(f'k_lam shape: {k_lam.shape}')
 
-            k_lam = np.expand_dims(np.ones(5), axis = 1)*dusty.dust_masks(waves)
-            print(f'k_lam shape: {k_lam.shape}')
-
-            model_flux = np.expand_dims(np.ones(5), axis = 1) *model_flux
-            print(f'modelflux shape: {model_flux.shape}')
-
-            #A_v=np.expand_dims(A_v, axis = 1)*np.ones(5)
-            print(f'A_v shape: {A_v.shape}')
-            print(f'A_v: {A_v}')
-
-            print(f'model_flux.shape: {model_flux.shape}')
-
-            model_flux *= 10**(-0.4*np.expand_dims(A_v, axis =1)*k_lam)
-
-            print(f'model flux shape: {model_flux.shape}')
-            print(f'model fluxes : {model_flux}')
+            model_flux *= 10**(-0.4*A_v*k_lam)
             #new_fluxes = np.expand_dims(np.zeros(5), axis =0)
             new_fluxes = pf.photometry(waves, model_flux, redshift)
 
             print(f'new fluxes:{new_fluxes.shape}')
             #print(new_fluxes.shape)
-
             print(f'sum test: {np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)), axis=1).shape}')
             print(f'sum test bottom: {np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1).shape}')
             best_mass = np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
             print(f'best mass shape {best_mass.shape}')
             print(f'best mass {best_mass}')
 
-            model = new_fluxes*np.expand_dims(best_mass, axis=1)
+            model = np.expand_dims(new_fluxes,axis =0)*np.expand_dims(best_mass, axis=1)
 
             print(f'model shape:{model.shape}')
 
@@ -113,46 +96,64 @@ for z in range(len(redshifts)):
             chisq = np.sum((diffs**2)/(fluxerrs_obs**2), axis=1)
             print(f'chisq {chisq}')
             print(f'chisq_shape {chisq.shape}')
-
-            for m in range(len(data)):
-                if (chisq[m] < best_chisq[m]) :
-                    best_chisq = chisq[m]
-                    best_redshift = redshift[m]
-                    best_age = a[m]
-                    bestest_mass = best_mass[m]
-                    best_dust = A_v[m]
-                    print(redshift, ages[a], A_v, chisq)
-
+            #chisq_arr = []
+            age_arr = []
+            #mass_arr = []
+            redshift_arr = []
+            dust_arr = []
+            for m in range(5):
+                if chisq[m] < best_chisq[m]:
+                    best_chisq=chisq
+                    best_redshift[m]=redshift
+                    best_ages[m]=a
+                    bestest_mass=best_mass
+                    best_dust[m]=A_v
+                    print(redshift, a, A_v, chisq)
+            age_arr.append(best_ages)
+            dust_arr.append(best_dust)
+            redshift_arr.append(best_redshift)
+            chisq_arr=best_chisq
+            #age_arr.append(best_ages)
+            mass_arr=bestest_mass
+            #dust_arr.append(best_dust)
+            #redshift_arr.append(best_redshift)
             print(f'time phot in loop taken: {np.round(time.time() - time0, 3)}')
-
-
-
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
-print(f'chisq={best_chisq}, best redshift ={best_redshift}, best_age={best_age, ages[best_age]}, best_mass={bestest_mass, np.log10(bestest_mass)}, best_dust={best_dust}')# best_mass={best_mass}')#best_metal={best_metal},
-#print(f'chisq={best_chisq}, best points are : z: {best_redshift}, age:{best_age}, metallicity: {best_metal}')
-flux_best_model = models[4][best_age, :]
 
-k_lam = dusty.dust_masks(waves)
-flux_best_model *=10**(-0.4*best_dust*k_lam)
-#waves, best_model = sf.spectrum(best_metal)
-flux_best_model_plot = pf.photometry(waves, flux_best_model, best_redshift)
-
-#eff_wavs1, new_fluxes, wavelengths, f_spec_model = pf.photometry(waves, best_model, best_age, best_redshift, mass)
-
-#plt.scatter(eff_wavs, flux_best_model_plot*bestest_mass, color="blue", zorder=3)
-
-plt.scatter(eff_wavs, flux_best_model_plot*bestest_mass, color="blue", zorder=3)
-
-plt.scatter(eff_wavs, fluxes_obs, color="red", zorder=3)
-plt.errorbar(eff_wavs, fluxes_obs, yerr = fluxerrs_obs, label='f_errors', ls=" ")
-plt.ylim(-1.5*10**-17, 1.5*10**-17)
-plt.xlim(0,50000)
-plt.show()
+print(f'chisq_arr: {chisq_arr}')
+print(f'mass_arr: {mass_arr}')
+print(f'age_arr: {age_arr}')
+print(f'redshift_arr: {redshift_arr}')
+print(f'dust_arr: {dust_arr}')
+print(age_arr[0][0])
+print(best_ages[np.int(0)])
+print(f'best_redshift: {best_redshift}, bestest_mass: {bestest_mass}, best_dust: {best_dust},best_age: {best_ages}, best_chisq: {best_chisq}')
 
 
+for object in range(5):
 
+    #print(f'chisq={best_chisq[object]}, best redshift ={best_redshift[object]}, best_age={best_age[object], ages[best_age[object]]}, best_mass={bestest_mass[object], np.log10(bestest_mass[object])}, best_dust={best_dust[object]}')# best_mass={best_mass}')#best_metal={best_metal},
+    #print(f'chisq={best_chisq}, best points are : z: {best_redshift}, age:{best_age}, metallicity: {best_metal}')
+    flux_best_model = models[4][int(best_ages[np.int(object)]),:]
 
+    k_lam = dusty.dust_masks(waves)
+    flux_best_model *=10**(-0.4*best_dust[object]*k_lam)
+    #waves, best_model = sf.spectrum(best_metal)
+    flux_best_model_plot = pf.photometry(waves, flux_best_model, best_redshift[object])
+
+    #eff_wavs1, new_fluxes, wavelengths, f_spec_model = pf.photometry(waves, best_model, best_age, best_redshift, mass)
+
+    #plt.scatter(eff_wavs, flux_best_model_plot*bestest_mass, color="blue", zorder=3)
+
+    plt.scatter(eff_wavs, flux_best_model_plot*bestest_mass[object], color="blue", zorder=3)
+
+    plt.scatter(eff_wavs, fluxes_obs[object], color="red", zorder=3)
+    plt.errorbar(eff_wavs, fluxes_obs[object], yerr = fluxerrs_obs[object], label='f_errors', ls=" ")
+    plt.ylim(-1.5*10**-17, 1.5*10**-17)
+    plt.xlim(0,50000)
+    plt.savefig(str(object)+'.png')
+    plt.show()
 
 
 """
