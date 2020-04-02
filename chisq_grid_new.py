@@ -96,64 +96,84 @@ for z in range(len(redshifts)):
             chisq = np.sum((diffs**2)/(fluxerrs_obs**2), axis=1)
             print(f'chisq {chisq}')
             print(f'chisq_shape {chisq.shape}')
-            #chisq_arr = []
-            age_arr = []
-            #mass_arr = []
-            redshift_arr = []
-            dust_arr = []
+
             for m in range(5):
                 if chisq[m] < best_chisq[m]:
-                    best_chisq=chisq
                     best_redshift[m]=redshift
                     best_ages[m]=a
-                    bestest_mass=best_mass
                     best_dust[m]=A_v
+                    bestest_mass=best_mass
+                    best_chisq=chisq
                     print(redshift, a, A_v, chisq)
-            age_arr.append(best_ages)
-            dust_arr.append(best_dust)
-            redshift_arr.append(best_redshift)
-            chisq_arr=best_chisq
-            #age_arr.append(best_ages)
-            mass_arr=bestest_mass
+
             #dust_arr.append(best_dust)
             #redshift_arr.append(best_redshift)
             print(f'time phot in loop taken: {np.round(time.time() - time0, 3)}')
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
+#chisq_arr = []
+
+age_arr=np.array(best_ages)
+dust_arr=np.array(best_dust)
+redshift_arr=np.array(best_redshift)
+chisq_arr=np.array(best_chisq)
+#age_arr.append(best_ages)
+mass_arr=np.array(bestest_mass)
 
 print(f'chisq_arr: {chisq_arr}')
 print(f'mass_arr: {mass_arr}')
 print(f'age_arr: {age_arr}')
 print(f'redshift_arr: {redshift_arr}')
 print(f'dust_arr: {dust_arr}')
-print(age_arr[0][0])
-print(best_ages[np.int(0)])
 print(f'best_redshift: {best_redshift}, bestest_mass: {bestest_mass}, best_dust: {best_dust},best_age: {best_ages}, best_chisq: {best_chisq}')
 
 
+#arr=np.array((redshift_arr, dust_arr, mass_arr,age_arr, chisq_arr))
+
+
+
+#test_catalogue = fits.writeto("test1_catalogue.fits", arr)
+
+
+names = np.array(['CDFS000005MASTER','CDFS000006SELECT','CDFS000007MASTER','CDFS000008MASTER','CDFS000009MASTER'])
+
+col1 = fits.Column(name='target', format='10A', array=names)
+col2 = fits.Column(name='redshift', format='10E', array=best_redshift)
+col3 = fits.Column(name='age', format='10E',  array=best_ages)
+col4 = fits.Column(name='mass', format='10E',  array=bestest_mass)
+col5 = fits.Column(name='dust', format='10E',  array=best_dust)
+col6 = fits.Column(name='best chisq', format='10E', array=best_chisq)
+
+hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col5, col6])
+
+hdu.writeto("test3_catalogue.fits")
+
 for object in range(5):
 
-    #print(f'chisq={best_chisq[object]}, best redshift ={best_redshift[object]}, best_age={best_age[object], ages[best_age[object]]}, best_mass={bestest_mass[object], np.log10(bestest_mass[object])}, best_dust={best_dust[object]}')# best_mass={best_mass}')#best_metal={best_metal},
-    #print(f'chisq={best_chisq}, best points are : z: {best_redshift}, age:{best_age}, metallicity: {best_metal}')
     flux_best_model = models[4][int(best_ages[np.int(object)]),:]
 
     k_lam = dusty.dust_masks(waves)
     flux_best_model *=10**(-0.4*best_dust[object]*k_lam)
-    #waves, best_model = sf.spectrum(best_metal)
     flux_best_model_plot = pf.photometry(waves, flux_best_model, best_redshift[object])
 
-    #eff_wavs1, new_fluxes, wavelengths, f_spec_model = pf.photometry(waves, best_model, best_age, best_redshift, mass)
+    #flux_best_model*=(3.826*10**33)
+    # for conversion to ergs/s/cm^2/Angstrom
+    #cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
+    #Mpc_m = 3.086*10**22 #Mpc in m
+    #Mpc_cm = Mpc_m*10**2 #in centimetres
+    #l_dist=cosmo.luminosity_distance(best_redshift).value*Mpc_cm #converting Mpc to cm
+    #lum_area = 4 *np.pi*((l_dist)**2)
 
-    #plt.scatter(eff_wavs, flux_best_model_plot*bestest_mass, color="blue", zorder=3)
-
+    #f_lam_model = np.expand_dims(flux_best_model, axis=0)/np.expand_dims(lum_area,axis=1)
+    #plt.plot(waves*(1+best_redshift[object]), f_lam_model)
     plt.scatter(eff_wavs, flux_best_model_plot*bestest_mass[object], color="blue", zorder=3)
-
     plt.scatter(eff_wavs, fluxes_obs[object], color="red", zorder=3)
     plt.errorbar(eff_wavs, fluxes_obs[object], yerr = fluxerrs_obs[object], label='f_errors', ls=" ")
     plt.ylim(-1.5*10**-17, 1.5*10**-17)
     plt.xlim(0,50000)
+    #
     plt.savefig(str(object)+'.png')
-    plt.show()
+#plt.show()
 
 
 """

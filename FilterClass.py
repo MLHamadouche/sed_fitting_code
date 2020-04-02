@@ -49,7 +49,6 @@ class Filters:
         self.new_filter_curves = new_filter_curves
 
 
-
 file = pickle.load( open( "awf_spec.p", "rb" ) )
 ages = file['ages']
 flux_grid = file['fluxes']
@@ -58,6 +57,6 @@ model = flux_grid[4][150, :]
 
 filter_list = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 waves = np.array(waves)
-filter_thing = Filters(filter_list)
+filter_thing = Filters(filter_list, waves, model)
 
 print(filter_thing)
