@@ -28,7 +28,7 @@ print(f'fluxes_obs.shape:{fluxes_obs.shape}')
 
 #redshifts = np.arange(0.9, 1.16, 0.01)
 
-redshifts = np.arange(0.2, 3.6, 0.2)
+redshifts = np.arange(0.1, 3.6, 0.05)
 #redshifts = np.expand_dims(redshifts, axis = 1)*np.ones(5)
 
 best_chisq = np.ones(5)
@@ -48,24 +48,30 @@ flux_grid = file['fluxes']
 waves = file['wavelengths']
 models = flux_grid
 
+for a in range(len(ages)):
+    if ages[a] == 40*10**6:
+        print(a)
+
+
 print(f'models[4].shape:{models[4].shape}')
 
-dust_att = np.arange(0.1,3.6,0.5)
+dust_att = np.arange(0,2.5,0.1)
 #dust_att = np.expand_dims(dust_att, axis = 1)*np.ones(5)
 
-total_models = 41*len(redshifts)*len(dust_att)
+total_models = (221-103)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
+
 
 for z in range(len(redshifts)):
     redshift = redshifts[z]
     print(f'redshift start of loop: {redshift}')
     for d in range(len(dust_att)):
         A_v = dust_att[d]
-        for a in range(110,150,2):
+        for a in range(103,221,1): #103 is index of 40 Myrs
             model_flux = np.copy(models[4][a,:])
             time0 = time.time()
 
-            no_models_done = a + d*41 + len(dust_att)*41*z
+            no_models_done = a + d*(221-103) + len(dust_att)*(221-103)*z
             #if not no_models_done % 1000:
             print("Tried", no_models_done, "/", total_models, " models")
             #model_flux = np.expand_dims(model_flux, axis = 0)
@@ -126,8 +132,6 @@ print(f'age_arr: {age_arr}')
 print(f'redshift_arr: {redshift_arr}')
 print(f'dust_arr: {dust_arr}')
 print(f'best_redshift: {best_redshift}, bestest_mass: {bestest_mass}, best_dust: {best_dust},best_age: {best_ages}, best_chisq: {best_chisq}')
-
-
 
 names = np.array(['CDFS000005MASTER','CDFS000006SELECT','CDFS000007MASTER','CDFS000008MASTER','CDFS000009MASTER'])
 
