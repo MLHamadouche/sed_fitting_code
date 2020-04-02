@@ -128,25 +128,19 @@ print(f'dust_arr: {dust_arr}')
 print(f'best_redshift: {best_redshift}, bestest_mass: {bestest_mass}, best_dust: {best_dust},best_age: {best_ages}, best_chisq: {best_chisq}')
 
 
-#arr=np.array((redshift_arr, dust_arr, mass_arr,age_arr, chisq_arr))
-
-
-
-#test_catalogue = fits.writeto("test1_catalogue.fits", arr)
-
 
 names = np.array(['CDFS000005MASTER','CDFS000006SELECT','CDFS000007MASTER','CDFS000008MASTER','CDFS000009MASTER'])
 
 col1 = fits.Column(name='target', format='10A', array=names)
-col2 = fits.Column(name='redshift', format='10E', array=best_redshift)
-col3 = fits.Column(name='age', format='10E',  array=best_ages)
-col4 = fits.Column(name='mass', format='10E',  array=bestest_mass)
-col5 = fits.Column(name='dust', format='10E',  array=best_dust)
-col6 = fits.Column(name='best chisq', format='10E', array=best_chisq)
+col2 = fits.Column(name='redshift', format='E', array=best_redshift)
+col3 = fits.Column(name='age', format='E',  array=best_ages)
+col4 = fits.Column(name='mass', format='E',  array=bestest_mass)
+col5 = fits.Column(name='dust', format='E',  array=best_dust)
+col6 = fits.Column(name='best chisq', format='E', array=best_chisq)
 
 hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col5, col6])
 
-hdu.writeto("test3_catalogue.fits")
+hdu.writeto("test4_catalogue.fits")
 
 for object in range(5):
 
