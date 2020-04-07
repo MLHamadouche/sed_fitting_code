@@ -5,6 +5,7 @@ from astropy.cosmology import FlatLambdaCDM
 from scipy.integrate import simps
 from astropy.cosmology import FlatLambdaCDM
 import spec_fluxes as sf
+import cosmology
 
 filters = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 
@@ -35,6 +36,9 @@ def photometry(waves, fluxes, redshift):
 
     #c = 2.99792458*10**10 #cms/s cgs units
     #fluxes*=(3.826*10**33)#to get in ergs/s/Angstrom
+
+    #f_lam = cosmology.cosmos(fluxes, redshift)
+
     fluxes*=(3.826*10**33)
     # for conversion to ergs/s/cm^2/Angstrom
     l_dist=cosmo.luminosity_distance(redshift).value*Mpc_cm #converting Mpc to cm
@@ -50,7 +54,6 @@ def photometry(waves, fluxes, redshift):
 
         f_lam_x_filters = f_lam*new_filter_curves[m]*waves
         new_fluxes[m] = (np.trapz(f_lam_x_filters, x=waves))/(np.trapz(new_filter_curves[m]*waves, x=waves))
-
 
     return new_fluxes
 
