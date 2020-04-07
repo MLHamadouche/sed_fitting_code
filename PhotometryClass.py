@@ -45,16 +45,16 @@ class Photometry:
         for f in self.filter_curves:
             flux_filter = f[:,1]/np.max(f[:,1])
             wav_filter = f[:,0]
-            filter_interpolation = np.interp(waves*(1 + self.redshift), wav_filter, flux_filter, left=0, right=0) # shift Wavelengths by factor of redshift to the left to get lambda_obs
+            filter_interpolation = np.interp(self.waves*(1 + self.redshift), wav_filter, flux_filter, left=0, right=0) # shift Wavelengths by factor of redshift to the left to get lambda_obs
             new_filter_curves.append(filter_interpolation)
 
         self.new_filter_curves = new_filter_curves
 
     def cosmos(self):
-        fluxes*=(3.826*10**33) #for conversion to ergs/s/cm^2/Angstrom
-        l_dist=cosmo.luminosity_distance(redshift).value*Mpc_cm #converting Mpc to cm
+        self.fluxes*=(3.826*10**33) #for conversion to ergs/s/cm^2/Angstrom
+        l_dist=cosmo.luminosity_distance(self.redshift).value*Mpc_cm #converting Mpc to cm
         lum_area = 4 *np.pi*((l_dist)**2)
-        f_lambda = fluxes/(lum_area)
+        f_lambda = self.fluxes/(lum_area)
 
         self.converted_fluxes = f_lambda
 
