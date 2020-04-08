@@ -142,13 +142,6 @@ for object in range(len(data)):
     flux_best_model *=10**(-0.4*best_dust[object]*k_lam)
     flux_best_model_plot = pf.photometry(waves, flux_best_model, best_redshift[object])
 
-    #flux_best_model*=(3.826*10**33)
-    # for conversion to ergs/s/cm^2/Angstrom
-    #cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
-    #Mpc_m = 3.086*10**22 #Mpc in m
-    #Mpc_cm = Mpc_m*10**2 #in centimetres
-    #l_dist=cosmo.luminosity_distance(best_redshift).value*Mpc_cm #converting Mpc to cm
-    #lum_area = 4 *np.pi*((l_dist)**2)
 
     #f_lam_model = np.expand_dims(flux_best_model, axis=0)/np.expand_dims(lum_area,axis=1)
     #plt.plot(waves*(1+best_redshift[object]), f_lam_model)

@@ -1,8 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import astropy
 from astropy.cosmology import FlatLambdaCDM
-from scipy.integrate import simps
+
 
 cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
 Mpc_m = 3.086*10**22 #Mpc in m
@@ -13,4 +12,5 @@ def cosmos(fluxes, redshift):
         l_dist=cosmo.luminosity_distance(redshift).value*Mpc_cm #converting Mpc to cm
         lum_area = 4 *np.pi*((l_dist)**2)
         f_lambda = fluxes/(lum_area)
-    return f_lambda
+
+        return f_lambda

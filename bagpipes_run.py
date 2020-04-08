@@ -29,7 +29,6 @@ filters = ["filters/filters_m/CH2",
 filters_list = np.loadtxt("//Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters/massi.filt_list", dtype='str')
 
 
-
 model = pipes.model_galaxy(model_components, filt_list = filters)
 
 #print(filters_list)
