@@ -11,6 +11,7 @@ import eff_wavs_filter_function as ewavs
 import time
 from astropy.table import Table
 from astropy.io import fits
+import save_catalogue as cat
 
 
 filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
@@ -42,10 +43,10 @@ flux_grid = file['fluxes']
 waves = file['wavelengths']
 models = flux_grid
 
-redshifts = np.arange(1.001, 6.201, 0.1)
-dust_att = np.arange(0.1,1.901,0.1)
+redshifts = np.arange(1.001, 6.201, 0.01)
+dust_att = np.arange(0.,2.601,0.05)
 #103 index is 40 Million Years, 181 is 10Gyrs
-total_models = ((181-103)/3)*len(redshifts)*len(dust_att)
+total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
 k_lam = dusty.dust_masks(waves)
 
@@ -55,10 +56,10 @@ for z in range(len(redshifts)):
     redshift = redshifts[z]
     for d in range(len(dust_att)):
         A_v = dust_att[d]
-        for a in range(103,180,3):
+        for a in range(103,180,2):
             model_flux = np.copy(models[4][a,:])
             time_model_start = time.time()
-            no_models_done = a + d*((181-103)/3) + len(dust_att)*((181-103)/3)*z
+            no_models_done = a + d*((181-103)/2) + len(dust_att)*((181-103)/2)*z
             #if not no_models_done % 1000:
             print("Tried", no_models_done, "/", total_models, " models")
 
@@ -92,10 +93,10 @@ print(f'time end: {np.round(time_end/60, 3)} mins')
 col1 = fits.Column(name='target', format='10A', array=data)
 col2 = fits.Column(name='redshift', format='E', array=best_redshift)
 col3 = fits.Column(name='age', format='E',  array=best_ages)
-col4 = fits.Column(name='mass', format='E',  array=bestest_mass)
+col4 = fits.Column(name='mass', format='E',  array=best_mass)
 col5 = fits.Column(name='dust', format='E',  array=best_dust)
 col6 = fits.Column(name='best chisq', format='E', array=best_chisq)
 
 hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col5, col6])
-
-hdu.writeto("new_test150_catalogue.fits")
+file =  "newtest2_catalogue.fits"
+hdu.writeto(file)
