@@ -11,17 +11,20 @@ import eff_wavs_filter_function as ewavs
 import time
 from astropy.table import Table
 from astropy.io import fits
-import save_catalogue as cat
-
 
 filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 
 eff_wavs = ewavs.filter_wavs()
 ross_objects = Table.read('/Users/massissiliahamadouche/Downloads/massi_cdfs_vandels_test_phot.fits').to_pandas()
 
-data = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
+objects = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
+#print(data)
+data = []
+
+for i in range(len(objects)):
+    data.append(objects[i])
 print(data)
-data = data[0:150]
+
 
 ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
 
@@ -43,8 +46,8 @@ flux_grid = file['fluxes']
 waves = file['wavelengths']
 models = flux_grid
 
-redshifts = np.arange(1.001, 6.201, 0.01)
-dust_att = np.arange(0.,2.601,0.05)
+redshifts = np.arange(1.001, 6.201, 0.05)
+dust_att = np.arange(0.,2.501,0.1)
 #103 index is 40 Million Years, 181 is 10Gyrs
 total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
