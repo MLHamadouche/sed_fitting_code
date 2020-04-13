@@ -23,7 +23,7 @@ data = []
 
 for i in range(len(objects)):
     data.append(objects[i])
-print(data)
+#print(data)
 
 
 ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
@@ -31,6 +31,7 @@ ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
 fluxes_obs = cf.conversion_func(fluxes_obs_raw, eff_wavs)
 fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, eff_wavs)
 
+input()
 best_chisq = np.ones(len(data))
 best_chisq*=np.inf
 best_redshift = np.ones(len(data))
@@ -46,8 +47,8 @@ flux_grid = file['fluxes']
 waves = file['wavelengths']
 models = flux_grid
 
-redshifts = np.arange(1.001, 6.201, 0.05)
-dust_att = np.arange(0.,2.501,0.1)
+redshifts = np.arange(1.001, 6.201, 0.1)
+dust_att = np.arange(0.,2.501,0.2)
 #103 index is 40 Million Years, 181 is 10Gyrs
 total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
@@ -101,5 +102,5 @@ col5 = fits.Column(name='dust', format='E',  array=best_dust)
 col6 = fits.Column(name='best chisq', format='E', array=best_chisq)
 
 hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col5, col6])
-file =  "newtest2_catalogue.fits"
+file =  "nope_catalogue.fits"
 hdu.writeto(file)

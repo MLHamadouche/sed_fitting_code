@@ -14,14 +14,21 @@ catalog_file = Table.read('/Users/massissiliahamadouche/Downloads/massi_cdfs_van
 #print(catalog_file)
 
 def load_catalog_data(data_array):
-    catalog_IDs = catalog_file['ID']
-    catalog_IDs.index = 'CDFS' + catalog_file['ID'].astype(str).str.pad(6, side="left", fillchar="0") #+ catalog_file['CAT'].str.decode("utf-8")
-
-    _cat = catalog_IDs[data_array]
-
-    cat_data = catalog_file.reindex(_cat, flux_cols).values
-
-    cat_errs = catalog_file.reindex(_cat, flux_errs_cols).values
+    catalog = pd.DataFrame(catalog_file)
+    #catalog_IDs = catalog_file['ID']
+    ind = catalog.set_index('CDFS' + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))
+    print(f'ind: {ind.index}')
+    #cat_ind = ind.index
+    #catalog_IDs.index = 'CDFS' + catalog_file['ID'].astype(str).str.pad(6, side="left", fillchar="0")#+ catalog_file['CAT'].str.decode("utf-8")
+    #print("catalog.catalog_IDs", catalog.catalog_IDs)
+    #cat = catalog_IDs.reset_index
+    #print("cat[data_array]:", cat[data_array])
+    #_cat = cat[data_array]
+    #print("_cat:", _cat)
+    #cat_data = catalog_file.loc.[_cat, flux_cols].values
+    cat_data = ind.loc[data_array, flux_cols].values
+    print(cat_data)
+    cat_errs = ind.loc[data_array,flux_errs_cols].values
     #print(cat_data[0].shape[0])
 
     for m in range(len(data_array)):
@@ -33,4 +40,4 @@ def load_catalog_data(data_array):
                 cat_errs[m][i] = 9.9*10**99
                 cat_data[m][i] = 0.
 
-    return _cat, cat_data, cat_errs
+    return ind.index, cat_data, cat_errs
