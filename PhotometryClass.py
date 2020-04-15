@@ -63,6 +63,7 @@ class Photometry:
         self.converted_fluxes = f_lambda
 
     def photometry(self):
+        
 
         new_fluxes = np.zeros((len(self.new_filter_curves)))
 
