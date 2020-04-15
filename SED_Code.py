@@ -18,6 +18,7 @@ eff_wavs = ewavs.filter_wavs()
 ross_objects = Table.read('/Users/massissiliahamadouche/Downloads/massi_cdfs_vandels_test_phot.fits').to_pandas()
 
 objects = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
+
 #print(data)
 data = []
 
@@ -37,7 +38,7 @@ best_chisq*=np.inf
 best_redshift = np.ones(len(data))
 best_dust = np.ones(len(data))
 best_ages = np.ones(len(data))
-bestest_mass = np.ones(len(data))
+bestest_mass = np.zeros(len(data))
 
 time_start=time.time()
 
@@ -48,7 +49,7 @@ waves = file['wavelengths']
 models = flux_grid
 
 redshifts = np.arange(1.001, 6.201, 0.1)
-dust_att = np.arange(0.,2.501,0.2)
+dust_att = np.arange(0.,2.501,0.1)
 #103 index is 40 Million Years, 181 is 10Gyrs
 total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
@@ -73,6 +74,7 @@ for z in range(len(redshifts)):
             new_fluxes = pc.Photometry(waves, filter_curves, eff_wavs, redshift, model_flux).photometry()
 
             best_mass = np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
+            #print(f'best_mass: {best_mass}')
 
             model = np.expand_dims(new_fluxes,axis =0)*np.expand_dims(best_mass, axis=1)
 
@@ -93,6 +95,8 @@ for z in range(len(redshifts)):
 
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
+RA = ross_objects['RA']
+DEC = ross_objects['DEC']
 
 col1 = fits.Column(name='target', format='10A', array=data)
 col2 = fits.Column(name='redshift', format='E', array=best_redshift)
@@ -100,7 +104,9 @@ col3 = fits.Column(name='age', format='E',  array=best_ages)
 col4 = fits.Column(name='mass', format='E',  array=best_mass)
 col5 = fits.Column(name='dust', format='E',  array=best_dust)
 col6 = fits.Column(name='best chisq', format='E', array=best_chisq)
+col7 = fits.Column(name='RA', format='E', array=RA)
+col8 = fits.Column(name='DEC', format='E', array=DEC)
 
-hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col5, col6])
-file =  "nope_catalogue.fits"
+hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col5, col6])
+file =  "test_ra_dec_catalogue.fits"
 hdu.writeto(file)
