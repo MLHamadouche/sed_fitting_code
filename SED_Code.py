@@ -93,6 +93,8 @@ for z in range(len(redshifts)):
             time_model_end = time.time() - time_model_start
             print(f'time model end: {time_model_end}')
 
+
+
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
 RA = ross_objects['RA']

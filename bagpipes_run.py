@@ -78,7 +78,6 @@ fluxes_obs = cf.conversion_func(fluxes_obs_raw, eff_wavs)
 fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, eff_wavs)
 
 
-
 fit_cat = pipes.fit_catalogue(IDs, fit_instructions, load_goodss, spectrum_exists=False,
                               cat_filt_list=filters, run="guo_cat")
 
