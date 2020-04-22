@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import conversion_function as cf
 import get_data as gd
 import time
-import spec_fluxes as sf
+#import spec_fluxes as sf
 import phot_filts as pf
 import eff_wavs_filter_function as ewavs
 import dust as dusty
@@ -91,7 +91,7 @@ for z in range(len(redshifts)):
             #print(f'sum test bottom: {np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1).shape}')
             best_mass = np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
             #print(f'best mass shape {best_mass.shape}')
-            #print(f'best mass {best_mass}')
+            print(f'best mass {best_mass}')
 
             model = np.expand_dims(new_fluxes,axis =0)*np.expand_dims(best_mass, axis=1)
 

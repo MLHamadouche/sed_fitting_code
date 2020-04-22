@@ -4,7 +4,7 @@ import astropy
 from astropy.cosmology import FlatLambdaCDM
 from scipy.integrate import simps
 from astropy.cosmology import FlatLambdaCDM
-import spec_fluxes as sf
+#import spec_fluxes as sf
 import cosmology
 
 filters = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
