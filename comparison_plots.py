@@ -14,7 +14,7 @@ objects = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left'
 #for col in ross_objects.columns:
     #print(col)
 
-my_results = Table.read('masstest2_ra_dec_catalogue.fits').to_pandas()
+my_results = Table.read('full_igm_ra_dec_catalogue.fits').to_pandas()
 
 my_masses = my_results['mass']
 ross_mass = ross_objects['log10(M*)']
@@ -27,7 +27,7 @@ plt.scatter(ross_mass, np.log10(my_masses), color="red", s = 1)
 plt.title(" Plot of Massi's results versus Ross's results")
 plt.xlabel('Derived masses (10$^{m}$ solar masses)')
 plt.ylabel("Massi's masses (10$^{m}$ solar masses)")
-plt.savefig('MassComparisonPlot_testIGM.png')
+plt.savefig('MassComparisonPlot_IGM.png')
 plt.close()
 #print(my_results)
 
@@ -35,5 +35,5 @@ plt.scatter(ross_z, massi_z, color="blue", s = 1)
 plt.title(" Plot of Massi's results versus Ross's results")
 plt.xlabel('Derived redshifts')
 plt.ylabel("Massi's redshifts")
-plt.savefig('RedshiftComparisonPlot_testIGM.png')
+plt.savefig('RedshiftComparisonPlot_IGM.png')
 plt.close()

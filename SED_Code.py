@@ -51,7 +51,7 @@ waves = file['wavelengths']
 models = flux_grid
 
 redshifts = np.arange(1.001, 6.201, 0.05)
-dust_att = np.arange(0.,2.501,0.1)
+dust_att = np.arange(0.,2.501,0.01)
 #103 index is 40 Million Years, 181 is 10Gyrs
 total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
@@ -60,6 +60,7 @@ k_lam = dusty.dust_masks(waves)
 filter_curves = pc.load_filter_files(filter_list)
 
 igm = pipes.models.igm(waves)
+
 
 
 for z in range(len(redshifts)):
@@ -99,11 +100,12 @@ for z in range(len(redshifts)):
                     best_ages[m]=ages[a]
                     best_dust[m]=A_v
 
+
             #time_model_end = time.time() - time_model_start
             #print(f'time model end: {time_model_end}')
 
 
-
+pipes.models.making.igm_inoue2014.test()
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
 RA = ross_objects['RA']
@@ -119,5 +121,5 @@ col7 = fits.Column(name='RA', format='E', array=RA)
 col8 = fits.Column(name='DEC', format='E', array=DEC)
 
 hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col5, col6])
-file =  "masstest2_ra_dec_catalogue.fits"
+file =  "massigm2_ra_dec_catalogue.fits"
 hdu.writeto(file)
