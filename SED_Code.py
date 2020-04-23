@@ -123,3 +123,9 @@ col8 = fits.Column(name='DEC', format='E', array=DEC)
 hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col5, col6])
 file =  "massigm2_ra_dec_catalogue.fits"
 hdu.writeto(file)
+
+
+
+
+
+def test_plots
