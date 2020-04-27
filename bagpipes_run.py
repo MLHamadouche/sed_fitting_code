@@ -7,11 +7,10 @@ from astropy.table import Table
 from astropy.io import fits
 import conversion_function as cf
 
-exp = {}
-exp["age"] = (0.1, 15.)
-exp["tau"] = (0.3, 10.)
-exp["massformed"] = (1., 15.)
-exp["metallicity"] = (0., 2.5)
+burst = {}
+burst["age"] = (0., 13.)           # Vary the age between 0 and 13 Gyr
+burst["metallicity"] = 1.0  # Vary stellar metallicity between 0 and 5 times Solar
+burst["massformed"] = (0., 13.)    # Vary the Log_10 of total mass formed from 0 to 13.
 
 dust = {}
 dust["type"] = "Calzetti"
@@ -19,7 +18,7 @@ dust["Av"] = (0., 2.)
 
 fit_instructions = {}
 fit_instructions["redshift"] = (0., 10.)
-fit_instructions["exponential"] = exp
+fit_instructions["burst"] = burst
 fit_instructions["dust"] = dust
 
 
@@ -97,7 +96,7 @@ def load_data(data_array):
 
     return photometry
 
-#print(photometry)
+
 
 fit_cat = pipes.fit_catalogue(data, fit_instructions, load_data, spectrum_exists=False,
                               cat_filt_list=filters, run="guo_cat")
