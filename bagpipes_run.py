@@ -2,50 +2,10 @@ import bagpipes as pipes
 import numpy as np
 import load_data as ld
 import eff_wavs_filter_function as ewavs
-
-
-exp = {}                          # Tau model star formation history component
-exp["age"] = 2.                   # Gyr
-exp["tau"] = 0.75                 # Gyr
-exp["massformed"] = 9.            # log_10(M*/M_solar)
-exp["metallicity"] = 0.5          # Z/Z_oldsolar
-
-dust = {}                         # Dust component
-dust["type"] = "Calzetti"         # Define the shape of the attenuation curve
-dust["Av"] = 0.4                  # magnitudes
-
-model_components = {}                   # The model components dictionary
-model_components["redshift"] = 1.13     # Observed redshift
-model_components["exponential"] = exp
-model_components["dust"] = dust
-
-
-filters = ["filters/filters_m/CH2",
-            "filters/filters_m/HAWKI_K",
-            "filters/filters_m/ISAAC_Ks",
-            "filters/filters_m/CH1",
-            "filters/filters_m/VIMOS_U","filters/filters_m/f098m",
-            "filters/filters_m/f105w","filters/filters_m/f125w",
-            "filters/filters_m/f160w","filters/filters_m/f435w","filters/filters_m/f606w",
-            "filters/filters_m/f775w","filters/filters_m/f814w", "filters/filters_m/f850lp"]
-
-filters_list = np.loadtxt("//Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters/massi.filt_list", dtype='str')
-
-
-model = pipes.model_galaxy(model_components, filt_list = filters)
-
-#print(filters_list)
-
-model = pipes.model_galaxy(model_components, filt_list=filters_list)
-
-
-fig = model.plot()
-fig = model.sfh.plot()
-
-
-#model = pipes.model_galaxy(model_components, spec_wavs=np.arange(5000., 10000., 5.))
-
-#fig = model.plot()
+import pandas as pd
+from astropy.table import Table
+from astropy.io import fits
+import conversion_function as cf
 
 exp = {}
 exp["age"] = (0.1, 15.)
@@ -63,22 +23,83 @@ fit_instructions["exponential"] = exp
 fit_instructions["dust"] = dust
 
 
-eff_wavs = ewavs.filter_wavs()
-ross_objects = Table.read('/Users/massissiliahamadouche/Downloads/massi_cdfs_vandels_test_phot.fits').to_pandas()
+filters = ["/Users/PhDStuff/sed_fitting_code/filters/CH2",
+            "/Users/PhDStuff/sed_fitting_code/filters/HAWKI_K",
+            "/Users/PhDStuff/sed_fitting_code/filters/ISAAC_Ks",
+            "/Users/PhDStuff/sed_fitting_code/filters/CH1",
+            "/Users/PhDStuff/sed_fitting_code/filters/VIMOS_U","/Users/PhDStuff/sed_fitting_code/filters/f098m",
+            "/Users/PhDStuff/sed_fitting_code/filters/f105w","/Users/PhDStuff/sed_fitting_code/filters/f125w",
+            "/Users/PhDStuff/sed_fitting_code/filters/f160w","/Users/PhDStuff/sed_fitting_code/filters/f435w","/Users/PhDStuff/sed_fitting_code/filters/f606w",
+            "/Users/PhDStuff/sed_fitting_code/filters/f775w","/Users/PhDStuff/sed_fitting_code/filters/f814w", "/Users/PhDStuff/sed_fitting_code/filters/f850lp"]
 
-objects = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
+#filters_list = np.loadtxt("//Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters/massi.filt_list", dtype='str')
+
+"""
+model = pipes.model_galaxy(model_components, filt_list = filters)
+
+#print(filters_list)
+
+#model = pipes.model_galaxy(model_components, filt_list=filters_list)
+
+
+fig = model.plot()
+fig = model.sfh.plot()
+"""
+
+#model = pipes.model_galaxy(model_components, spec_wavs=np.arange(5000., 10000., 5.))
+
+#fig = model.plot()
+
+catalog = Table.read('/Users/massissiliahamadouche/Downloads/massi_cdfs_vandels_test_phot.fits').to_pandas()
+
+eff_wavs = ewavs.filter_wavs()
+
+objects = np.array('CDFS'+ catalog['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
+
+flux_cols = ['CH2_flux', 'Ks_HAWKI_flux','Ks_ISAAC_flux','CH1_flux','VIMOS_U_flux','F098M_flux','F105W_flux','F125W_flux','F160W_flux','F435W_flux','F606W_flux','F775W_flux','F814W_flux','F850LP_flux']
+flux_errs_cols = ['CH2_err', 'Ks_HAWKI_err','Ks_ISAAC_err','CH1_err','VIMOS_U_err','F098M_err','F105W_err','F125W_err','F160W_err', 'F435W_err','F606W_err', 'F775W_err','F814W_err', 'F850LP_err']
+
 
 data = []
+
 for i in range(len(objects)):
     data.append(objects[i])
-#print(data)
-ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
 
-fluxes_obs = cf.conversion_func(fluxes_obs_raw, eff_wavs)
-fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, eff_wavs)
+data = data[0:5]
 
+def load_data(data_array):
+    # load up the relevant columns from the catalogue.
+    # Find the correct row for the object we want.
+    ind = catalog.set_index('CDFS' + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))
+    # Extract the object we want from the catalogue.
+    fluxes = ind.loc[data_array, flux_cols].values
+    #print(cat_data)
+    fluxerrs = ind.loc[data_array,flux_errs_cols].values
+    print(fluxes)
+    # Turn these into a 2D array.
+    photometry = np.c_[fluxes, fluxerrs]
 
-fit_cat = pipes.fit_catalogue(IDs, fit_instructions, load_goodss, spectrum_exists=False,
+    # blow up the errors associated with any missing fluxes.
+    for i in range(len(photometry)):
+        if (photometry[i, 0] == 0.) or (photometry[i, 1] <= 0):
+            photometry[i,:] = [0., 9.9*10**99.]
+
+    # Enforce a maximum SNR of 20, or 10 in the IRAC channels.
+    for i in range(len(photometry)):
+        if i < 10:
+            max_snr = 20.
+
+        else:
+            max_snr = 10.
+
+        if photometry[i, 0]/photometry[i, 1] > max_snr:
+            photometry[i, 1] = photometry[i, 0]/max_snr
+
+    return photometry
+
+#print(photometry)
+
+fit_cat = pipes.fit_catalogue(data, fit_instructions, load_data, spectrum_exists=False,
                               cat_filt_list=filters, run="guo_cat")
 
-fit_cat.fit(verbose=False)
+fit_cat.fit()

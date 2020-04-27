@@ -62,7 +62,6 @@ filter_curves = pc.load_filter_files(filter_list)
 igm = pipes.models.igm(waves)
 
 
-
 for z in range(len(redshifts)):
     redshift = redshifts[z]
     for d in range(len(dust_att)):
@@ -128,4 +127,4 @@ hdu.writeto(file)
 
 
 
-def test_plots
+def test_plots():

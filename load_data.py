@@ -17,7 +17,7 @@ def load_catalog_data(data_array):
     catalog = pd.DataFrame(catalog_file)
     #catalog_IDs = catalog_file['ID']
     ind = catalog.set_index('CDFS' + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))
-    print(f'ind: {ind.index}')
+    #print(f'ind: {ind.index}')
     #cat_ind = ind.index
     #catalog_IDs.index = 'CDFS' + catalog_file['ID'].astype(str).str.pad(6, side="left", fillchar="0")#+ catalog_file['CAT'].str.decode("utf-8")
     #print("catalog.catalog_IDs", catalog.catalog_IDs)
@@ -27,7 +27,7 @@ def load_catalog_data(data_array):
     #print("_cat:", _cat)
     #cat_data = catalog_file.loc.[_cat, flux_cols].values
     cat_data = ind.loc[data_array, flux_cols].values
-    print(cat_data)
+    #print(cat_data)
     cat_errs = ind.loc[data_array,flux_errs_cols].values
     #print(cat_data[0].shape[0])
 
