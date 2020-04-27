@@ -45,13 +45,12 @@ def dust_masks(eff_wavs):
     #plt.xlim(0.1, 0.4)
     #plt.ylim(0., 5)
     #plt.show()
-    return(k_lam)
-
+    return k_lam
     #for j in wavs2:
     #    k_lam.append((4.05 +2.659*(-2.156 + 1.059/i - 0.198/i**2 + 0.011/i**3))/4.05)
 
     #print(f'k_lam2:{k_lam}')
-
+"""
     k_lam[mask0] = ((wavs_mic[mask0]/0.12)**-0.77 * ((4.05 +2.659*(-2.156 + 1.509/0.12 - 0.198/0.12**2 + 0.011/0.12**3))))/4.05
     k_lam[mask1] = (4.05 + 2.659*(-1.857 + (1.040/wavs_mic[mask1])))/4.05
     k_lam[mask2] = (4.05 +2.659*(-2.156 + 1.509/wavs_mic[mask2] - 0.198/wavs_mic[mask2]**2 + 0.011/wavs_mic[mask2]**3))/4.05
@@ -65,5 +64,5 @@ def dust_masks(eff_wavs):
     #plt.xlim(0., 5.)
     #plt.show()
     return(k_lam)
-
+"""
 #dust_masks(wavs_mic)
