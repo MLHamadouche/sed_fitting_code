@@ -64,7 +64,7 @@ data = []
 for i in range(len(objects)):
     data.append(objects[i])
 
-data = data[0:5]
+
 
 def load_data(data_array):
     # load up the relevant columns from the catalogue.
@@ -97,8 +97,7 @@ def load_data(data_array):
     return photometry
 
 
-
 fit_cat = pipes.fit_catalogue(data, fit_instructions, load_data, spectrum_exists=False,
                               cat_filt_list=filters, run="guo_cat")
 
-fit_cat.fit()
+fit_cat.fit(verbose=True, mpi_serial=True)
