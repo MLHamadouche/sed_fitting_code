@@ -62,18 +62,22 @@ Ncob, CO_percentageb, compute_MADb, dzb = stats_z(massi_z, bagpipes_z, N_obj=309
 
 #print(f'Nco: {Nco}, CO_percentage: {CO_percentage}')
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10,6))
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(10,6))
 ax1.scatter(ross_z, massi_z, color="m", s = 2)
 ax2.scatter(bagpipes_z, massi_z, color="m", s = 2)
+ax3.scatter(bagpipes_z, ross_z, color="m", s = 2)
 l1 = ax1.plot(ross_z, ross_z, color="k", linewidth=0.7, label = '1:1 line')
 l2 = ax2.plot(bagpipes_z, bagpipes_z,color="k", linewidth=0.7, label = '1:1 line' )
+l3 = ax3.plot(bagpipes_z, bagpipes_z,color="k", linewidth=0.7, label = '1:1 line' )
 #plt.title(" Plot of Massi's results versus cat results")
 ax1.set_xlabel('Ross z')
 ax2.set_ylabel("Massi's redshifts")
 ax2.set_xlabel('Bagpipes z')
 ax1.set_ylabel("Massi's redshifts")
-fig.suptitle("Plot of Massi's results versus bagpipes & ross results")
-plt.savefig('my_results_v_b&r_z_results.png')
+ax3.set_xlabel('Bagpipes z')
+ax1.set_ylabel("ross z")
+fig.suptitle("Plot of redshift results")
+plt.savefig('all_v_b&r_z_results.png')
 plt.close()
 
 ############## dust v dust #########################################

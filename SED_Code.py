@@ -88,7 +88,7 @@ for z in range(len(redshifts)):
             new_fluxes = pc.Photometry(waves, filter_curves, eff_wavs, redshift, model_flux).photometry()
             #print(new_fluxes)
             #print(new_fluxes)
-            best_mass=np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
+            best_mass=mass_norm[a]*np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
             #print(f'best_mass: {best_mass}')
 
             model = np.expand_dims(new_fluxes,axis =0)*np.expand_dims(best_mass, axis=1)
