@@ -2,9 +2,7 @@ import bagpipes as pipes
 import numpy as np
 import load_data as ld
 import eff_wavs_filter_function as ewavs
-import pandas as pd
-from astropy.table import Table
-from astropy.io import fits
+
 import conversion_function as cf
 
 burst = {}

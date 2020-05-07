@@ -14,6 +14,12 @@ from astropy.io import fits
 import bagpipes as pipes
 #from tqdm import tqdm
 
+age_norm = np.loadtxt("/Users/PhDStuff/mass_normalization_bc03.txt", usecols=[0])
+mass_norm = np.loadtxt("/Users/PhDStuff/mass_normalization_bc03.txt", usecols=[10])
+#print(age_norm, mass_norm)
+
+
+
 filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 
 eff_wavs = ewavs.filter_wavs()
@@ -34,7 +40,7 @@ ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
 fluxes_obs = cf.conversion_func(fluxes_obs_raw, eff_wavs)
 fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, eff_wavs)
 
-input()
+
 best_chisq = np.ones(len(data))
 best_chisq*=np.inf
 best_redshift = np.ones(len(data))
@@ -50,7 +56,7 @@ flux_grid = file['fluxes']
 waves = file['wavelengths']
 models = flux_grid
 
-redshifts = np.arange(1.001, 6.201, 0.1)
+redshifts = np.arange(1.001, 6.201, 0.05)
 dust_att = np.arange(0.,2.501,0.1)
 #103 index is 40 Million Years, 181 is 10Gyrs
 total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
@@ -75,14 +81,14 @@ for z in range(len(redshifts)):
 
             model_flux *= 10**(-0.4*A_v*k_lam)
             igm_trans = igm.trans(redshift)
-            model_flux*=igm_trans
+            model_flux*=igm_trans * mass_norm[a]
+            print(f'massnorm: {mass_norm[a]}')
             #print(f'igm_trans:{igm_trans}')
             #_fluxes=pc.Photometry(waves, filter_list, redshift, model_flux)
             new_fluxes = pc.Photometry(waves, filter_curves, eff_wavs, redshift, model_flux).photometry()
             #print(new_fluxes)
-
             #print(new_fluxes)
-            best_mass = np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
+            best_mass=np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
             #print(f'best_mass: {best_mass}')
 
             model = np.expand_dims(new_fluxes,axis =0)*np.expand_dims(best_mass, axis=1)
@@ -94,16 +100,30 @@ for z in range(len(redshifts)):
             for m in range(len(data)):
                 if chisq[m] < best_chisq[m]:
                     best_chisq[m]=chisq[m]
+                    best_ages[m]=ages[a]
+                    age_ind = a
                     bestest_mass[m]=best_mass[m]
                     best_redshift[m]=redshift
-                    best_ages[m]=ages[a]
                     best_dust[m]=A_v
 
 
             #time_model_end = time.time() - time_model_start
             #print(f'time model end: {time_model_end}')
+for object in range(len(data)):
+    flux_best_model = models[4][age_ind,:]
 
-
+    k_lam = dusty.dust_masks(waves)
+    flux_best_model *=10**(-0.4*best_dust[object]*k_lam)
+    new_fluxes = pc.Photometry(waves, filter_curves, eff_wavs, best_redshift[object], flux_best_model).photometry()
+    flux_best_model_plot = new_fluxes*bestest_mass[object]
+    #f_lam_model = np.expand_dims(flux_best_model, axis=0)/np.expand_dims(lum_area,axis=1)
+    #plt.plot(waves*(1+best_redshift[object]), f_lam_model)
+    plt.scatter(eff_wavs*(1+best_redshift[object]), flux_best_model_plot, color="blue", zorder=3)
+    plt.scatter(eff_wavs*(1+best_redshift[object]), fluxes_obs[object], color="red", zorder=2)
+    plt.errorbar(eff_wavs*(1+best_redshift[object]), fluxes_obs[object], yerr = fluxerrs_obs[object], label='f_errors', ls=" ")
+    plt.xlim(0,50000*(1+best_redshift[object]))
+    plt.savefig(str(data[object])+'.png')
+    plt.close()
 #pipes.models.making.igm_inoue2014.test()
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
@@ -120,5 +140,5 @@ col7 = fits.Column(name='RA', format='E', array=RA)
 col8 = fits.Column(name='DEC', format='E', array=DEC)
 
 hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col5, col6])
-file =  "massigm2_ra_dec_catalogue.fits"
+file =  "massigmplzplots_ra_dec_catalogue.fits"
 hdu.writeto(file)

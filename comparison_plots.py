@@ -30,6 +30,7 @@ delta_bp_mass = bagpipes_mass - my_masses
 matplotlib.rcParams['font.family'] = "AppleMyungjo"
 #matplotlib.rcParams['font.family'] = "Hiragino Mincho Pro"
 plt.scatter(bagpipes_dust, my_dust,  color="blue", s = 1)
+plt.plot(bagpipes_dust, bagpipes_dust, '--', color = "red")
 plt.title(" Plot of Massi's results versus Bagpipes results")
 plt.xlabel('Bagpipes dust (A_v)')
 plt.ylabel("Massi's dust (A_v)")
@@ -79,6 +80,7 @@ best_chisq_m = opt.minimize(chisq,[6.5,7],args=[bagpipes_mass, my_masses, yerrs]
 mm, mc = best_chisq_m.x
 print(f'mm:{mm}, mc: {mc}')
 plt.plot(bagpipes_mass, model(mm, mc, bagpipes_mass),'',label='model')
+
 #(mm:0.7924392193530521, mc: 1.5071569509261304), chisq: 35.997870567558394
 #plt.plot(bagpipes_mass, model(mm, mc, bagpipes_mass),'',label='model')
 #plt.scatter(bagpipes_mass, my_masses, color="red", s = 1)
@@ -94,14 +96,29 @@ plt.savefig('MassComparisonPlotbagpipes_IGM.png')
 plt.close()
 
 
+plt.scatter(bagpipes_mass, my_masses, color="red", s = 1)
+plt.plot(bagpipes_mass,bagpipes_mass,'',label='model')
+#plt.scatter(bagpipes_mass, my_masses, color="red", s = 1)
+plt.title(" Plot of Massi's results versus bagpipes results")
+plt.xlabel('Bagpipes masses (10$^{m}$ solar masses)')
+plt.ylabel("Massi's masses (10$^{m}$ solar masses)")
+plt.xlim(7.5,12)
+plt.ylim(7.5,12)
+plt.savefig('1to1_MassComparisonPlotbagpipes_IGM.png')
+plt.close()
+
+
 for i in range(len(bagpipes_z)):
     if bagpipes_z[i] > 1:
         best_chisq_z = opt.minimize(chisq,x0,args=[bagpipes_z[i], massi_z, yerrs])
 
 zm, zc = best_chisq_z.x
 
-#plt.errorbar(ross_z, massi_z,yerr=yerrs,label='errors', ls=" ")
+meh_chisq_z = opt.minimize(chisq,x0,args=[bagpipes_z, massi_z, yerrs])
 
+zmbad, zcbad = meh_chisq_z.x
+#plt.errorbar(ross_z, massi_z,yerr=yerrs,label='errors', ls=" ")
+plt.plot(bagpipes_z, model(zmbad, zcbad, bagpipes_z),'', label='meh model')
 plt.plot(bagpipes_z, model(zm, zc, bagpipes_z),'', color="red", label='model')
 plt.scatter(bagpipes_z, massi_z, color="blue", s = 1)
 plt.title(" Plot of Massi's results versus bagpipes results")
@@ -115,6 +132,7 @@ best_chisq_rossz = opt.minimize(chisq,x0,args=[ross_z, massi_z, yerrs])
 mr, cr = best_chisq_rossz.x
 plt.plot(ross_z, model(mr, cr, ross_z),'', color="red", label='model')
 plt.scatter(ross_z, massi_z, color="blue", s = 1)
+plt.plot(ross_z, ross_z, '--', color='black')
 plt.title(" Plot of Massi's results versus Ross' results")
 plt.xlabel('ZSPEC')
 plt.ylabel("Massi's redshifts")
@@ -126,8 +144,9 @@ best_chisq_rossm = opt.minimize(chisq,[1.,1.],args=[ross_mass, my_masses, yerrs]
 rm, rc= best_chisq_rossm.x
 m, c = 1.01, 1.4901161193847656*10**-8
 chis = 37.66017750019812
-plt.plot(ross_mass, model(rm, rc, ross_mass),'', color="red", label='model')
+#plt.plot(ross_mass, model(rm, rc, ross_mass),'', color="red", label='model')
 plt.scatter(ross_mass, my_masses, color="blue", s = 1)
+plt.plot(ross_mass, ross_mass, color="red")
 plt.title(" Plot of Massi's results versus Ross' results")
 plt.xlabel("Ross' masses")
 plt.ylabel("Massi's masses")
