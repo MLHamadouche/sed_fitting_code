@@ -81,14 +81,14 @@ for z in range(len(redshifts)):
 
             model_flux *= 10**(-0.4*A_v*k_lam)
             igm_trans = igm.trans(redshift)
-            model_flux*=igm_trans * mass_norm[a]
-            print(f'massnorm: {mass_norm[a]}')
+            model_flux*=igm_trans
+
             #print(f'igm_trans:{igm_trans}')
             #_fluxes=pc.Photometry(waves, filter_list, redshift, model_flux)
             new_fluxes = pc.Photometry(waves, filter_curves, eff_wavs, redshift, model_flux).photometry()
             #print(new_fluxes)
             #print(new_fluxes)
-            best_mass=mass_norm[a]*np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
+            best_mass=np.sum(((new_fluxes*fluxes_obs)/(fluxerrs_obs**2)),axis =1)/np.sum((new_fluxes**2)/(fluxerrs_obs**2), axis=1)
             #print(f'best_mass: {best_mass}')
 
             model = np.expand_dims(new_fluxes,axis =0)*np.expand_dims(best_mass, axis=1)
@@ -102,7 +102,8 @@ for z in range(len(redshifts)):
                     best_chisq[m]=chisq[m]
                     best_ages[m]=ages[a]
                     age_ind = a
-                    bestest_mass[m]=best_mass[m]
+                    formed_mass[m]=best_mass[m]
+                    stellar_mass[m]=best_mass[m]*mass_norm[a]
                     best_redshift[m]=redshift
                     best_dust[m]=A_v
 
