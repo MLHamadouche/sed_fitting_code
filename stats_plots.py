@@ -28,14 +28,13 @@ ross_dust = ross_objects['AV']
 bagpipes_dust = bagpipes['dust:Av_50']
 ####### MASSES ######################################
 #my_masses = np.log10(my_results['mass'])
-massi_mass = np.log10(my_results['stellar_mass'])
+massi_stel_mass = np.log10(my_results['stellar_mass'])
 massi_formedmass = np.log10(my_results['formed_mass'])
 ross_mass = ross_objects['log10(M*)']
-bagpipes_mass = bagpipes['burst:massformed_50']
-delta_mass = ross_mass - massi_mass
-delta_bp_mass = bagpipes_mass - massi_mass
+bagpipes_formed_mass = bagpipes['burst:massformed_50']
+delta_mass = ross_mass - massi_stel_mass
 bagpipes_stellar_mass = bagpipes['stellar_mass_50']
-
+delta_bp_mass = bagpipes_stellar_mass - massi_stel_mass
 ####### REDSHIFT ####################################
 massi_z = my_results['redshift']
 bagpipes_z = bagpipes['redshift_50']
@@ -112,7 +111,7 @@ plt.close()
 
 ############## age v age with mass cbar ###############################
 fig, ax = plt.subplots()
-c = massi_mass # color of points
+c = massi_stel_mass # color of points
 im = ax.scatter(bagpipes_ages, massi_ages,c=c, s=5, linewidth=0.7, cmap=plt.cm.BuPu_r)
 im2 = ax.plot(bagpipes_ages, bagpipes_ages,linewidth=0.7, color="black")
 # Add a colorbar
@@ -129,42 +128,42 @@ plt.close()
 ######### mass v mass with age cbar ####################################
 fig, ax = plt.subplots()
 c = massi_ages*10**9  # color of points
-im = ax.scatter(bagpipes_mass, massi_mass,c=c,s=5, cmap=plt.cm.BuPu_r)
-im2 = ax.plot(bagpipes_stellar_mass, bagpipes_stellar_mass, linewidth=0.7, color="black")
+im = ax.scatter(bagpipes_formed_mass, massi_formedmass,c=c,s=5, cmap=plt.cm.BuPu_r)
+im2 = ax.plot(bagpipes_formed_mass, bagpipes_formed_mass, linewidth=0.7, color="black")
 plt.xlabel(r'bagpipes_mass 10$^{m}$ $M_{\odot}$')
-plt.ylabel(r'massi_mass 10$^{m}$ $M_{\odot}$')
+plt.ylabel(r'massi_stel_mass 10$^{m}$ $M_{\odot}$')
 cbar = fig.colorbar(im, ax=ax)
 cbar.set_label(r'age(10$^9$yrs)')
 plt.xlim(8,11.5)
 plt.ylim(7.5,11.5)
 plt.title(" Plot of Massi's results versus bagpipes results")
-plt.savefig('pipesmassvmass_age_cbar.png')
+plt.savefig('pipesformedmassvmyformedmass_age_cbar.png')
 plt.close()
 
 ######### mass v mass with age cbar ####################################
 fig, ax = plt.subplots()
 c = massi_ages*10**9  # color of points
-im = ax.scatter(ross_mass, massi_mass, c=c,s=5, cmap=plt.cm.BuPu_r)
+im = ax.scatter(ross_mass, massi_stel_mass, c=c,s=5, cmap=plt.cm.BuPu_r)
 im2 = ax.plot(ross_mass, ross_mass,linewidth=0.7, color="black")
 plt.xlabel(r'ross_mass 10$^{m}$ $M_{\odot}$')
-plt.ylabel(r'massi_mass 10$^{m}$ $M_{\odot}$')
+plt.ylabel(r'massi_stel_mass 10$^{m}$ $M_{\odot}$')
 cbar = fig.colorbar(im, ax=ax)
 cbar.set_label(r'age(10$^9$yrs)')
 plt.title(" Plot of Massi's results versus Ross results")
-plt.savefig('stellarrossmassvmass_age_cbar.png')
+plt.savefig('rossmassvmass_age_cbar.png')
 plt.close()
 
 ######### mass v stellar-mass with age cbar ####################################
 fig, ax = plt.subplots()
 c = massi_ages*10**9  # color of points
-im = ax.scatter(bagpipes_stellar_mass, massi_mass,c=c,s=5, cmap=plt.cm.BuPu_r)
+im = ax.scatter(bagpipes_stellar_mass, massi_stel_mass,c=c,s=5, cmap=plt.cm.BuPu_r)
 im2 = ax.plot(bagpipes_stellar_mass, bagpipes_stellar_mass, linewidth=0.7, color="black")
 plt.xlabel(r'bagpipes_mass 10$^{m}$ $M_{\odot}$')
-plt.ylabel(r'massi_mass 10$^{m}$ $M_{\odot}$')
+plt.ylabel(r'massi_stel_mass 10$^{m}$ $M_{\odot}$')
 cbar = fig.colorbar(im, ax=ax)
 cbar.set_label(r'age(10$^9$yrs)')
 plt.xlim(8,11.5)
 plt.ylim(7.5,11.5)
 plt.title(" Plot of Massi's results versus bagpipes results")
-plt.savefig('pipesstellarmassvmass_age_cbar.png')
+plt.savefig('pipesstellarmassvstelmass_age_cbar.png')
 plt.close()
