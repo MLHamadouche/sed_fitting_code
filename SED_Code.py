@@ -18,8 +18,6 @@ age_norm = np.loadtxt("/Users/PhDStuff/mass_normalization_bc03.txt", usecols=[0]
 mass_norm = np.loadtxt("/Users/PhDStuff/mass_normalization_bc03.txt", usecols=[10])
 #print(age_norm, mass_norm)
 
-
-
 filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 
 eff_wavs = ewavs.filter_wavs()
@@ -46,7 +44,8 @@ best_chisq*=np.inf
 best_redshift = np.ones(len(data))
 best_dust = np.ones(len(data))
 best_ages = np.ones(len(data))
-bestest_mass = np.zeros(len(data))
+formed_mass = np.zeros(len(data))
+stellar_mass = np.zeros(len(data))
 
 time_start=time.time()
 
@@ -56,8 +55,8 @@ flux_grid = file['fluxes']
 waves = file['wavelengths']
 models = flux_grid
 
-redshifts = np.arange(1.001, 6.201, 0.05)
-dust_att = np.arange(0.,2.501,0.1)
+redshifts = np.arange(1.001, 6.201, 0.01)
+dust_att = np.arange(0.,2.501, 0.1)
 #103 index is 40 Million Years, 181 is 10Gyrs
 total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
@@ -108,8 +107,7 @@ for z in range(len(redshifts)):
                     best_dust[m]=A_v
 
 
-            #time_model_end = time.time() - time_model_start
-            #print(f'time model end: {time_model_end}')
+"""
 for object in range(len(data)):
     flux_best_model = models[4][age_ind,:]
 
@@ -125,6 +123,7 @@ for object in range(len(data)):
     plt.xlim(0,50000*(1+best_redshift[object]))
     plt.savefig(str(data[object])+'.png')
     plt.close()
+"""
 #pipes.models.making.igm_inoue2014.test()
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
@@ -134,12 +133,13 @@ DEC = ross_objects['DEC']
 col1 = fits.Column(name='target', format='10A', array=data)
 col2 = fits.Column(name='redshift', format='E', array=best_redshift)
 col3 = fits.Column(name='age', format='E',  array=best_ages)
-col4 = fits.Column(name='mass', format='E',  array=bestest_mass)
+col4 = fits.Column(name='formed_mass', format='E', array=formed_mass)
+col9 = fits.Column(name='stellar_mass', format='E', array=stellar_mass)
 col5 = fits.Column(name='dust', format='E',  array=best_dust)
 col6 = fits.Column(name='best chisq', format='E', array=best_chisq)
 col7 = fits.Column(name='RA', format='E', array=RA)
 col8 = fits.Column(name='DEC', format='E', array=DEC)
 
-hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col5, col6])
-file =  "massigmplzplots_ra_dec_catalogue.fits"
+hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col9, col5, col6 ])
+file =  "stellar_mass_ra_dec_catalogue.fits"
 hdu.writeto(file)
