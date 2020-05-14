@@ -8,7 +8,7 @@ cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
 Mpc_m = 3.086*10**22 #Mpc in m
 Mpc_cm = Mpc_m*10**2 #in centimetres
 filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
-
+"""
 def load_filter_files(filter_list):
     filter_curves = []
 
@@ -16,7 +16,14 @@ def load_filter_files(filter_list):
         filter_curves.append(np.loadtxt("/Users/PhDStuff/sed_fitting_code/filters/"+str(filter)))
 
     return filter_curves
-        #print(self.filter_curves)
+"""
+def load_filter_files(filter_list):
+    filter_curves = []
+
+    for filter in filter_list:
+        filter_curves.append(np.loadtxt("/Users/massissiliahamadouche/Downloads/massi_zphot_test/UDS_filters/"+str(filter)))
+    return filter_curves
+#print(self.filter_curves)
 def calc_eff_wavs(filter_curves):
     eff_wavs = []
 
@@ -59,11 +66,12 @@ class Photometry:
         l_dist=cosmo.luminosity_distance(self.redshift).value*Mpc_cm #converting Mpc to cm
         lum_area = 4 *np.pi*((l_dist)**2)
         f_lambda = self.fluxes/(lum_area)
+        f_lambda/=(1+self.redshift)
 
         self.converted_fluxes = f_lambda
 
     def photometry(self):
-        
+
 
         new_fluxes = np.zeros((len(self.new_filter_curves)))
 

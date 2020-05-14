@@ -18,13 +18,15 @@ age_norm = np.loadtxt("/Users/PhDStuff/mass_normalization_bc03.txt", usecols=[0]
 mass_norm = np.loadtxt("/Users/PhDStuff/mass_normalization_bc03.txt", usecols=[10])
 #print(age_norm, mass_norm)
 
-filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
-
-eff_wavs = ewavs.filter_wavs()
-ross_objects = Table.read('/Users/massissiliahamadouche/Downloads/massi_cdfs_vandels_test_phot.fits').to_pandas()
-
-objects = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
-
+#filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
+new_filter_list = ['cfht_U.txt', 'subaru_B.txt', 'subaru_V.txt', 'subaru_R.txt', 'subaru_i.txt', 'subaru_z.txt', 'subaru_newz.txt', 'subaru_nb921.txt', 'vista_Y.txt', 'wfcam_J.txt', 'wfcam_H.txt','wfcam_K.txt']
+filter_curves = pc.load_filter_files(new_filter_list)
+#print(filter_curves)
+eff_wavs = pc.calc_eff_wavs(filter_curves)
+#ross_objects = Table.read('/Users/massissiliahamadouche/Downloads/massi_cdfs_vandels_test_phot.fits').to_pandas()
+ross_objects = Table.read('/Users/massissiliahamadouche/Downloads/massi_zphot_test/UDS_zphot_training_phot.fits').to_pandas()
+#objects = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
+objects = np.array('UDS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
 #print(data)
 data = []
 
@@ -32,12 +34,14 @@ for i in range(len(objects)):
     data.append(objects[i])
 #print(data)
 
+print(len(data))
+
 
 ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
 
-fluxes_obs = cf.conversion_func(fluxes_obs_raw, eff_wavs)
-fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, eff_wavs)
 
+fluxes_obs = cf.conversion_func(fluxes_obs_raw, np.array(eff_wavs))
+fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, np.array(eff_wavs))
 
 best_chisq = np.ones(len(data))
 best_chisq*=np.inf
@@ -55,14 +59,14 @@ flux_grid = file['fluxes']
 waves = file['wavelengths']
 models = flux_grid
 
-redshifts = np.arange(1.001, 6.201, 0.01)
-dust_att = np.arange(0.,2.501, 0.1)
+redshifts = np.arange(0.001, 6.201, 0.01)
+dust_att = np.arange(0.,2.501, 0.01)
 #103 index is 40 Million Years, 181 is 10Gyrs
 total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
 k_lam = dusty.dust_masks(waves)
 
-filter_curves = pc.load_filter_files(filter_list)
+
 
 igm = pipes.models.igm(waves)
 
@@ -127,8 +131,8 @@ for object in range(len(data)):
 #pipes.models.making.igm_inoue2014.test()
 time_end = time.time() - time_start
 print(f'time end: {np.round(time_end/60, 3)} mins')
-RA = ross_objects['RA']
-DEC = ross_objects['DEC']
+#RA = ross_objects['RA']
+#DEC = ross_objects['DEC']
 
 col1 = fits.Column(name='target', format='10A', array=data)
 col2 = fits.Column(name='redshift', format='E', array=best_redshift)
@@ -137,9 +141,10 @@ col4 = fits.Column(name='formed_mass', format='E', array=formed_mass)
 col9 = fits.Column(name='stellar_mass', format='E', array=stellar_mass)
 col5 = fits.Column(name='dust', format='E',  array=best_dust)
 col6 = fits.Column(name='best chisq', format='E', array=best_chisq)
-col7 = fits.Column(name='RA', format='E', array=RA)
-col8 = fits.Column(name='DEC', format='E', array=DEC)
+#col7 = fits.Column(name='RA', format='E', array=RA)
+#col8 = fits.Column(name='DEC', format='E', array=DEC)
 
-hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col9, col5, col6 ])
-file =  "stellar_mass_ra_dec_catalogue.fits"
+#hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col9, col5, col6 ])
+hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col9, col5, col6 ])
+file =  "test_new_catalogue.fits"
 hdu.writeto(file)
