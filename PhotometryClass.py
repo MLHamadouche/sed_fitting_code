@@ -7,7 +7,7 @@ import cosmology
 cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
 Mpc_m = 3.086*10**22 #Mpc in m
 Mpc_cm = Mpc_m*10**2 #in centimetres
-filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
+#filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 """
 def load_filter_files(filter_list):
     filter_curves = []
@@ -17,11 +17,12 @@ def load_filter_files(filter_list):
 
     return filter_curves
 """
+
 def load_filter_files(filter_list):
     filter_curves = []
 
     for filter in filter_list:
-        filter_curves.append(np.loadtxt("/Users/massissiliahamadouche/Downloads/massi_zphot_test/UDS_filters/"+str(filter)))
+        filter_curves.append(np.loadtxt("/Users/massissiliahamadouche/Downloads/massi_zphot_test/ECDFS_filters/"+str(filter)))
     return filter_curves
 #print(self.filter_curves)
 def calc_eff_wavs(filter_curves):

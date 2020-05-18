@@ -58,12 +58,13 @@ def stats_z(my_z, spec_z, N_obj):
         CO_percentage = Nco/N_obj *100
 
     compute_MAD = stats.median_absolute_deviation(dz)
-    print(f'Nco: {Nco}, CO_percentage: {np.round(CO_percentage,3)}%, compute_MAD: {np.round(compute_MAD,5)}')
-    return Nco, CO_percentage, compute_MAD, dz
+    sigma_dz = compute_MAD/1.4286
+    print(f'Nco: {Nco}, CO_percentage: {np.round(CO_percentage,3)}%, compute_MAD: {np.round(compute_MAD,5)},  compute_MAD: {np.round(sigma_dz,5)}')
+    return Nco, CO_percentage, compute_MAD, dz, sigma_dz
 
-Nco, CO_percentage, compute_MAD, dz = stats_z(massi_z, ross_z, N_obj=309)
-Ncob, CO_percentageb, compute_MADb, dzb = stats_z(massi_z, bagpipes_z, N_obj=309)
-Ncobr, CO_percentagebr, compute_MADbr, dzbr = stats_z(bagpipes_z, ross_z, N_obj=309)
+Nco, CO_percentage, compute_MAD, dz, sig_dz = stats_z(massi_z, ross_z, N_obj=309)
+Ncob, CO_percentageb, compute_MADb, dzb, sig_dzb = stats_z(massi_z, bagpipes_z, N_obj=309)
+Ncobr, CO_percentagebr, compute_MADbr, dzbr, sig_dzrb = stats_z(bagpipes_z, ross_z, N_obj=309)
 
 spc = np.random.uniform(0., 6., size=(309))
 pht_plus = 0.85*spc - 0.15#randint(0., 7., 309)
@@ -98,6 +99,22 @@ ax3.set_xlabel('Ross z')
 ax3.set_ylabel("Bagpipes z")
 ax2.set_xlabel('Bagpipes z')
 ax1.set_ylabel("Massi's redshifts")
+props = dict(boxstyle='round', facecolor='plum', alpha=0.4)
+textstr1 = '\n'.join((
+    r'N$_{obj}$: $%s$' % (309, ),
+    r'$\mathrm{CO}: %.3f$%%' % (CO_percentage, ),
+    r'$\sigma_{dz}: %.4f$' % (sig_dz, )))
+ax1.text(0.2, 7.,textstr1, family='serif',variant ='normal',size='x-small', verticalalignment='top', bbox=props)
+textstr2 = '\n'.join((
+    r'N$_{obj}$: $%s$' % (309, ),
+    r'$\mathrm{CO}: %.3f$%%' % (CO_percentageb, ),
+    r'$\sigma_{dz}: %.4f$' % (sig_dzb, )))
+ax2.text(0.2, 7.,textstr2, family='serif',variant ='normal',size='x-small', verticalalignment='top', bbox=props)
+textstr3 = '\n'.join((
+    r'N$_{obj}$: $%s$' % (309, ),
+    r'$\mathrm{CO}: %.3f$%%' % (CO_percentagebr, ),
+    r'$\sigma_{dz}: %.4f$' % (sig_dzrb, )))
+ax3.text(0.2, 7.,textstr3, family='serif',variant ='normal', size='x-small', verticalalignment='top', bbox=props)
 fig.suptitle("Plot of redshift results")
 plt.savefig('new_all_z_results.png')
 plt.close()
