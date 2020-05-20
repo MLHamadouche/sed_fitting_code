@@ -5,6 +5,7 @@ import load_data as ld
 import conversion_function as cf
 import dust as dusty
 import pandas as pd
+import spec_fluxes as sf
 import func_chisq as chisq
 import pickle
 import eff_wavs_filter_function as ewavs
@@ -12,21 +13,32 @@ import time
 from astropy.table import Table
 from astropy.io import fits
 import bagpipes as pipes
+import pickle
+import os
 
-mass_norm = np.loadtxt("/Users/PhDStuff/mass_normalization_bc03.txt", usecols=[10])
+if not os.path.exists("awf_spec.p"):
+    ages, waves,flux_grid = sf.spectrum()
+    arr = {'ages': ages, 'wavelengths': wavelengths, 'fluxes': flux_grid}
+    #print(arr)
+    pickle.dump( arr, open( "awf_spec.p", "wb" ))
+
+mass_norm = np.loadtxt("mass_normalization_bc03.txt", usecols=[10])
 
 #filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 #new_filter_list = ['cfht_U.txt', 'subaru_B.txt', 'subaru_V.txt', 'subaru_R.txt', 'subaru_i.txt', 'subaru_z.txt', 'subaru_newz.txt', 'subaru_nb921.txt', 'vista_Y.txt', 'wfcam_J.txt', 'wfcam_H.txt','wfcam_K.txt']
+new_filter_list = ['ECDFS_B_filter.txt', 'ECDFS_H_filter.txt',  'ECDFS_I598_filter.txt', 'ECDFS_I679_filter.txt', 'ECDFS_J_filter.txt','ECDFS_U_filter.txt', 'ECDFS_z850_filter.txt', 'ECDFS_CH1_filter.txt', 'ECDFS_I484_filter.txt',  'ECDFS_I624_filter.txt' , 'ECDFS_I738_filter.txt' ,'ECDFS_K_filter.txt' , 'ECDFS_V606_filter.txt','ECDFS_CH2_filter.txt' , 'ECDFS_I527_filter.txt' , 'ECDFS_I651_filter.txt',  'ECDFS_I767_filter.txt' , 'ECDFS_R_filter.txt' , 'ECDFS_Y_filter.txt']
+#print(len(new_filter_list))
 
-new_filter_list = ['ECDFS_B_filter.txt', 'ECDFS_H_filter.txt',  'ECDFS_I598_filter.txt', 'ECDFS_I679_filter.txt', 'ECDFS_J_filter.txt','ECDFS_U_filter.txt', 'ECDFS_z850_filter.txt', 'ECDFS_CH1_filter.txt', 'ECDFS_I484_filter.txt',  'ECDFS_I624_filter.txt' , 'ECDFS_I738_filter.txt' ,'ECDFS_K_filter.txt' , 'ECDFS_V606_filter.txt',
-'ECDFS_CH2_filter.txt' , 'ECDFS_I527_filter.txt' , 'ECDFS_I651_filter.txt',  'ECDFS_I767_filter.txt' , 'ECDFS_R_filter.txt' , 'ECDFS_Y_filter.txt']
+dir_path_filters = os.path.realpath('massi_zphot_test/ECDFS_filters/')
+#dir_path = os.path.normpath(os.path.join(os.getcwd(), dir_path))
 
-filter_curves = pc.load_filter_files(new_filter_list)
+filter_curves = pc.load_filter_files(dir_path_filters +"/", new_filter_list )
 
 eff_wavs = pc.calc_eff_wavs(filter_curves)
 
 ######## LOAD CATALOG DATA ##########################
-ross_objects = Table.read('/Users/massissiliahamadouche/Downloads/massi_zphot_test/ECDFS_zphot_training_phot.fits').to_pandas()
+
+ross_objects = Table.read('massi_zphot_test/ECDFS_zphot_training_phot.fits').to_pandas()
 #objects = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
 objects = np.array('ECDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
 
@@ -37,11 +49,12 @@ for i in range(len(objects)):
 
 print(len(data))
 ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
-
+print(len(fluxes_obs_raw[1]))
 ####### FLUX CONVERSION #######################################
 fluxes_obs = cf.conversion_func(fluxes_obs_raw, np.array(eff_wavs))
 fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, np.array(eff_wavs))
-
+print(len(fluxes_obs[0]))
+input()
 ######## INITIALISE ARRAYS ###############################################
 best_chisq = np.ones(len(data))
 best_chisq*=np.inf
@@ -60,10 +73,10 @@ waves = file['wavelengths']
 models = flux_grid
 
 ######## SET PARAMETER RANGES #######################################
-redshifts = np.arange(0.001, 6.201, 0.1)
-dust_att = np.arange(0.,2.501, 0.1)
+redshifts = np.arange(0.001, 5.201, 0.1)
+dust_att = np.arange(0.,4.1, 0.1)
 #103 index is 40 Million Years, 181 is 10Gyrs
-total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
+total_models = ((187-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
 
 ######### DUST AND IGM MODEL #######################################
@@ -76,10 +89,10 @@ for z in range(len(redshifts)):
     redshift = redshifts[z]
     for d in range(len(dust_att)):
         A_v = dust_att[d]
-        for a in range(103,180,2):
+        for a in range(90,186,2):
             model_flux = np.copy(models[4][a,:])
             time_model_start = time.time()
-            no_models_done = a + d*((181-103)/2) + len(dust_att)*((181-103)/2)*z
+            no_models_done = a + d*((187-90)/2) + len(dust_att)*((187-90)/2)*z
             #if not no_models_done % 1000:
             print("Tried", no_models_done, "/", total_models, " models")
 
@@ -115,7 +128,6 @@ print(f'time end: {np.round(time_end/60, 3)} mins')
 
 #RA = ross_objects['RA']
 #DEC = ross_objects['DEC']
-
 col1 = fits.Column(name='target', format='10A', array=data)
 col2 = fits.Column(name='redshift', format='E', array=best_redshift)
 col3 = fits.Column(name='age', format='E',  array=best_ages)
@@ -128,7 +140,7 @@ col6 = fits.Column(name='best chisq', format='E', array=best_chisq)
 
 #hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col9, col5, col6 ])
 hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col9, col5, col6 ])
-file =  "ECDFS_test_new_catalogue.fits"
+file =  "ECDFS_test2_new_catalogue.fits"
 hdu.writeto(file)
 
 

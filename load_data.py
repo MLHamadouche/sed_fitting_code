@@ -9,14 +9,14 @@ import matplotlib.pyplot as plt
 """
 flux_cols  = ['U_flux','B_flux','V_flux','R_flux','i_flux','z_flux','newz_flux','nb921_flux','Y_flux','J_flux','H_flux','K_flux']
 flux_errs_cols = ['U_err','B_err','V_err','R_err','i_err','z_err','newz_err','nb921_err','Y_err','J_err','H_err','K_err']
-catalog_file = Table.read('/Users/massissiliahamadouche/Downloads/massi_zphot_test/UDS_zphot_training_phot.fits').to_pandas()
+#catalog_file = Table.read('/massi_zphot_test/UDS_zphot_training_phot.fits').to_pandas()
 """
 
 flux_cols = [ 'U_flux', 'B_flux', 'I484_flux' , 'I527_flux' ,'I598_flux',  'V606_flux', 'I624_flux' , 'I651_flux' ,'R', 'I679'  ,'I738' ,'I767' ,'z850_flux',  'Y_flux' , 'J_flux' , 'H_flux' , 'K_flux' , 'CH1_flux' , 'CH2_flux']
 flux_errs_cols = ['U_err', 'B_err' , 'I484_err'  ,'I527_err','I598_err' ,'V606_err', 'I624_err' ,'I651_err',  'R_err' , 'I679_err', 'I738_err',  'I767_err',  'z850_err' ,  'Y_err', 'J_err' , 'H_err', 'K_err', 'CH1_err', 'CH2_err']
 
 
-catalog_file = Table.read('/Users/massissiliahamadouche/Downloads/massi_zphot_test/ECDFS_zphot_training_phot.fits').to_pandas()
+catalog_file = Table.read('massi_zphot_test/ECDFS_zphot_training_phot.fits').to_pandas()
 
 
 def load_catalog_data(data_array):

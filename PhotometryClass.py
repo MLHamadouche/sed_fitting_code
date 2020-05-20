@@ -18,11 +18,11 @@ def load_filter_files(filter_list):
     return filter_curves
 """
 
-def load_filter_files(filter_list):
+def load_filter_files(path_to_file, filter_list):
     filter_curves = []
 
     for filter in filter_list:
-        filter_curves.append(np.loadtxt("/Users/massissiliahamadouche/Downloads/massi_zphot_test/ECDFS_filters/"+str(filter)))
+        filter_curves.append(np.loadtxt(str(path_to_file)+str(filter)))
     return filter_curves
 #print(self.filter_curves)
 def calc_eff_wavs(filter_curves):
