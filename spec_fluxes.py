@@ -5,10 +5,10 @@ import time
 import astropy.io.fits as fits
 import os.path
 
-if os.path.exists("/bc03/Miles_Atlas"):
-    path = os.path.dirname(os.path.realpath(__file__))
-
-gen_file = str(path) + "/bc03/Miles_Atlas/Kroupa_IMF/bc2003_hr_xmiless_m62_kroup_ssp.ised_ASCII"
+#if os.path.exists("/bc03/Miles_Atlas/Kroupa_IMF/"):
+#    path = os.path.dirname(os.path.realpath(__file__))
+path = "bc03/Miles_Atlas/Kroupa_IMF/"
+gen_file = str(path) + "bc2003_hr_xmiless_m62_kroup_ssp.ised_ASCII"
 
 
 age_bc03 = np.loadtxt(gen_file, max_rows = 1, dtype=float)
@@ -28,7 +28,7 @@ def spectrum():
 
     for Z in models:
 
-        file = str(path)"/bc03/Miles_Atlas/Kroupa_IMF/bc2003_hr_xmiless_"+str(Z)+"_kroup_ssp.ised_ASCII"
+        file = str(path)+"bc2003_hr_xmiless_"+str(Z)+"_kroup_ssp.ised_ASCII"
 
         flux_models = np.genfromtxt(file, skip_header=7, skip_footer=12, dtype=float)
 

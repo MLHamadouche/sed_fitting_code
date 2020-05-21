@@ -29,10 +29,9 @@ mass_norm = np.loadtxt("mass_normalization_bc03.txt", usecols=[10])
 new_filter_list = ['ECDFS_B_filter.txt', 'ECDFS_H_filter.txt',  'ECDFS_I598_filter.txt', 'ECDFS_I679_filter.txt', 'ECDFS_J_filter.txt','ECDFS_U_filter.txt', 'ECDFS_z850_filter.txt', 'ECDFS_CH1_filter.txt', 'ECDFS_I484_filter.txt',  'ECDFS_I624_filter.txt' , 'ECDFS_I738_filter.txt' ,'ECDFS_K_filter.txt' , 'ECDFS_V606_filter.txt','ECDFS_CH2_filter.txt' , 'ECDFS_I527_filter.txt' , 'ECDFS_I651_filter.txt',  'ECDFS_I767_filter.txt' , 'ECDFS_R_filter.txt' , 'ECDFS_Y_filter.txt']
 #print(len(new_filter_list))
 
-dir_path_filters = os.path.realpath('massi_zphot_test/ECDFS_filters/')
-#dir_path = os.path.normpath(os.path.join(os.getcwd(), dir_path))
+#dir_path_filters = os.path.realpath('massi_zphot_test/ECDFS_filters/')
 
-filter_curves = pc.load_filter_files(dir_path_filters +"/", new_filter_list )
+filter_curves = pc.load_filter_files('massi_zphot_test/ECDFS_filters/', new_filter_list )
 
 eff_wavs = pc.calc_eff_wavs(filter_curves)
 
