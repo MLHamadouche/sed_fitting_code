@@ -5,10 +5,7 @@ import load_data as ld
 import conversion_function as cf
 import dust as dusty
 import pandas as pd
-import spec_fluxes as sf
-import func_chisq as chisq
-import pickle
-import eff_wavs_filter_function as ewavs
+#import spec_fluxes as sf
 import time
 from astropy.table import Table
 from astropy.io import fits
@@ -17,17 +14,19 @@ import pickle
 import os
 
 if not os.path.exists("awf_spec.p"):
-    ages, waves,flux_grid = sf.spectrum()
-    arr = {'ages': ages, 'wavelengths': wavelengths, 'fluxes': flux_grid}
+    ages, waves, flux_grid = sf.spectrum()
+    arr = {'ages': ages, 'wavelengths': waves, 'fluxes': flux_grid}
     #print(arr)
     pickle.dump( arr, open( "awf_spec.p", "wb" ))
 
 mass_norm = np.loadtxt("mass_normalization_bc03.txt", usecols=[10])
+#filters must be in ascending wavelength order
 
 #filter_list =["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
-#new_filter_list = ['cfht_U.txt', 'subaru_B.txt', 'subaru_V.txt', 'subaru_R.txt', 'subaru_i.txt', 'subaru_z.txt', 'subaru_newz.txt', 'subaru_nb921.txt', 'vista_Y.txt', 'wfcam_J.txt', 'wfcam_H.txt','wfcam_K.txt']
-new_filter_list = ['ECDFS_B_filter.txt', 'ECDFS_H_filter.txt',  'ECDFS_I598_filter.txt', 'ECDFS_I679_filter.txt', 'ECDFS_J_filter.txt','ECDFS_U_filter.txt', 'ECDFS_z850_filter.txt', 'ECDFS_CH1_filter.txt', 'ECDFS_I484_filter.txt',  'ECDFS_I624_filter.txt' , 'ECDFS_I738_filter.txt' ,'ECDFS_K_filter.txt' , 'ECDFS_V606_filter.txt','ECDFS_CH2_filter.txt' , 'ECDFS_I527_filter.txt' , 'ECDFS_I651_filter.txt',  'ECDFS_I767_filter.txt' , 'ECDFS_R_filter.txt' , 'ECDFS_Y_filter.txt']
 #print(len(new_filter_list))
+#put in wavelength order
+#new_filter_list = ['cfht_U.txt', 'subaru_B.txt', 'subaru_V.txt', 'subaru_R.txt', 'subaru_i.txt', 'subaru_z.txt', 'subaru_newz.txt', 'subaru_nb921.txt', 'vista_Y.txt', 'wfcam_J.txt', 'wfcam_H.txt','wfcam_K.txt']
+new_filter_list = [ 'ECDFS_U_filter.txt', 'ECDFS_B_filter.txt', 'ECDFS_I484_filter.txt' , 'ECDFS_I527_filter.txt' ,'ECDFS_I598_filter.txt',  'ECDFS_V606_filter.txt', 'ECDFS_I624_filter.txt' , 'ECDFS_I651_filter.txt' ,'ECDFS_R_filter.txt', 'ECDFS_I679_filter.txt'  ,'ECDFS_I738_filter.txt' ,'ECDFS_I767_filter.txt' ,'ECDFS_z850_filter.txt',  'ECDFS_Y_filter.txt' , 'ECDFS_J_filter.txt' , 'ECDFS_H_filter.txt' , 'ECDFS_K_filter.txt' , 'ECDFS_CH1_filter.txt' , 'ECDFS_CH2_filter.txt']
 
 #dir_path_filters = os.path.realpath('massi_zphot_test/ECDFS_filters/')
 
@@ -46,13 +45,28 @@ data = []
 for i in range(len(objects)):
     data.append(objects[i])
 
-print(len(data))
+#print(len(data))
 ID, fluxes_obs_raw, fluxerrs_obs_raw = ld.load_catalog_data(data)
-print(len(fluxes_obs_raw[1]))
+#print(len(fluxes_obs_raw[1]))
+
+#func that takes those above and plots the data for that object
+
 ####### FLUX CONVERSION #######################################
 fluxes_obs = cf.conversion_func(fluxes_obs_raw, np.array(eff_wavs))
 fluxerrs_obs = cf.conversion_func(fluxerrs_obs_raw, np.array(eff_wavs))
-print(len(fluxes_obs[0]))
+#print(fluxes_obs[1])
+
+plt.scatter(eff_wavs, fluxes_obs[1206], color ='mediumorchid', marker='o', linestyle='None')
+plt.errorbar(eff_wavs, fluxes_obs[1206], yerr=fluxerrs_obs[1206], linestyle='None', color='k')
+ax = plt.gca()
+# recompute the ax.dataLim
+ax.relim()
+# update ax.viewLim using the new dataLim
+ax.autoscale_view()
+plt.draw()
+plt.savefig('phot_plots/test_phot.png')
+plt.close()
+
 input()
 ######## INITIALISE ARRAYS ###############################################
 best_chisq = np.ones(len(data))
@@ -62,6 +76,7 @@ best_dust = np.ones(len(data))
 best_ages = np.ones(len(data))
 formed_mass = np.zeros(len(data))
 stellar_mass = np.zeros(len(data))
+age_ind = np.zeros(len(data))
 
 time_start=time.time()
 ######### LOAD BC03 MODELS #############################################
@@ -72,10 +87,10 @@ waves = file['wavelengths']
 models = flux_grid
 
 ######## SET PARAMETER RANGES #######################################
-redshifts = np.arange(0.001, 5.201, 0.1)
-dust_att = np.arange(0.,4.1, 0.1)
+redshifts = np.arange(0.001, 5.201, 0.05)
+dust_att = np.arange(0., 2.5, 0.1)
 #103 index is 40 Million Years, 181 is 10Gyrs
-total_models = ((187-103)/2)*len(redshifts)*len(dust_att)
+total_models = ((181-103)/2)*len(redshifts)*len(dust_att)
 print(f'total no. models:{total_models}')
 
 ######### DUST AND IGM MODEL #######################################
@@ -88,10 +103,10 @@ for z in range(len(redshifts)):
     redshift = redshifts[z]
     for d in range(len(dust_att)):
         A_v = dust_att[d]
-        for a in range(90,186,2):
+        for a in range(103,181,2):
             model_flux = np.copy(models[4][a,:])
             time_model_start = time.time()
-            no_models_done = a + d*((187-90)/2) + len(dust_att)*((187-90)/2)*z
+            no_models_done = a + d*((181-103)/2) + len(dust_att)*((181-103)/2)*z
             #if not no_models_done % 1000:
             print("Tried", no_models_done, "/", total_models, " models")
 
@@ -106,13 +121,14 @@ for z in range(len(redshifts)):
             model = np.expand_dims(new_fluxes,axis =0)*np.expand_dims(best_mass, axis=1)
 
             diffs= model-fluxes_obs
+
             chisq = np.sum((diffs**2)/(fluxerrs_obs**2), axis=1)
 
             for m in range(len(data)):
                 if chisq[m] < best_chisq[m]:
                     best_chisq[m]=chisq[m]
                     best_ages[m]=ages[a]
-                    age_ind = a
+                    age_ind[m] = a
                     formed_mass[m]=best_mass[m]
                     stellar_mass[m]=best_mass[m]*mass_norm[a]
                     best_redshift[m]=redshift
@@ -139,24 +155,37 @@ col6 = fits.Column(name='best chisq', format='E', array=best_chisq)
 
 #hdu = fits.BinTableHDU.from_columns([col1, col7, col8, col2, col3, col4, col9, col5, col6 ])
 hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4, col9, col5, col6 ])
-file =  "ECDFS_test2_new_catalogue.fits"
+file =  "ECDFS_plots_new_catalogue.fits"
 hdu.writeto(file)
 
-
+matplotlib.rcParams['font.family'] = "AppleMyungjo"
+#uncomment to plot the model photometry and  for each object
 """
 for object in range(len(data)):
-    flux_best_model = models[4][age_ind,:]
+    age_index = np.int(age_ind[object])
+    #print(age_index)
+    new_model_flux = np.copy(models[4][age_index])
 
-    k_lam = dusty.dust_masks(waves)
-    flux_best_model *=10**(-0.4*best_dust[object]*k_lam)
-    new_fluxes = pc.Photometry(waves, filter_curves, eff_wavs, best_redshift[object], flux_best_model).photometry()
-    flux_best_model_plot = new_fluxes*bestest_mass[object]
-    #f_lam_model = np.expand_dims(flux_best_model, axis=0)/np.expand_dims(lum_area,axis=1)
-    #plt.plot(waves*(1+best_redshift[object]), f_lam_model)
-    plt.scatter(eff_wavs*(1+best_redshift[object]), flux_best_model_plot, color="blue", zorder=3)
-    plt.scatter(eff_wavs*(1+best_redshift[object]), fluxes_obs[object], color="red", zorder=2)
-    plt.errorbar(eff_wavs*(1+best_redshift[object]), fluxes_obs[object], yerr = fluxerrs_obs[object], label='f_errors', ls=" ")
-    plt.xlim(0,50000*(1+best_redshift[object]))
-    plt.savefig(str(data[object])+'.png')
+    new_model_flux *= 10**(-0.4*best_dust[object]*k_lam)
+    igm_trans = igm.trans(best_redshift[object])
+    new_model_flux*=igm_trans
+
+
+    new_fluxes = pc.Photometry(waves, filter_curves, eff_wavs, best_redshift[object], new_model_flux).photometry()
+
+    new_fluxes*=stellar_mass[object]
+
+    plt.scatter(eff_wavs, fluxes_obs[object], color ='mediumorchid', marker='o', linestyle='None')
+    plt.scatter(eff_wavs, new_fluxes, color ='steelblue', marker='o', linestyle='None')
+    plt.errorbar(eff_wavs, fluxes_obs[object], yerr=fluxerrs_obs[object], linestyle='None', color='k')
+    plt.xlabel(r'Wavelength ($\AA$)')
+    plt.ylabel(r'F$_{\lambda}$ ($erg s^{-1} cm^{-2} \AA^{-1}$)')
+    ax = plt.gca()
+    # recompute the ax.dataLim
+    ax.relim()
+    # update ax.viewLim using the new dataLim
+    ax.autoscale_view()
+    plt.draw()
+    plt.savefig('phot_plots/'+str(data[object])+'_phot.png')
     plt.close()
 """

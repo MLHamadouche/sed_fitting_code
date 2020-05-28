@@ -16,7 +16,7 @@ flux_cols = [ 'U_flux', 'B_flux', 'I484_flux' , 'I527_flux' ,'I598_flux',  'V606
 flux_errs_cols = ['U_err', 'B_err' , 'I484_err'  ,'I527_err','I598_err' ,'V606_err', 'I624_err' ,'I651_err',  'R_err' , 'I679_err', 'I738_err',  'I767_err',  'z850_err' ,  'Y_err', 'J_err' , 'H_err', 'K_err', 'CH1_err', 'CH2_err']
 
 
-catalog_file = Table.read('massi_zphot_test/ECDFS_zphot_training_phot.fits').to_pandas()
+catalog_file = Table.read('/Users/massi_zphot_test/ecdfs_zphot_validation_phot_zspec.fits').to_pandas()
 
 
 def load_catalog_data(data_array):

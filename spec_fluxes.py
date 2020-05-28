@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import spectres
 import time
 import astropy.io.fits as fits
 import os.path
