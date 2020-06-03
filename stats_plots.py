@@ -58,7 +58,7 @@ def stats_z(my_z, spec_z, N_obj):
         CO_percentage = Nco/N_obj *100
 
     compute_MAD = stats.median_absolute_deviation(dz)
-    sigma_dz = compute_MAD/1.4286
+    sigma_dz = compute_MAD
     print(f'Nco: {Nco}, CO_percentage: {np.round(CO_percentage,3)}%, compute_MAD: {np.round(compute_MAD,5)},  compute_MAD: {np.round(sigma_dz,5)}')
     return Nco, CO_percentage, compute_MAD, dz, sigma_dz
 
