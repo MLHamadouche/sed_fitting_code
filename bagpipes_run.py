@@ -87,18 +87,16 @@ for i in range(len(objects)):
 
 
 def load_data(data_array):
-    # load up the relevant columns from the catalogue.
-    # Find the correct row for the object we want.
+
     ind = catalog.set_index('ECDFS' + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))
-    # Extract the object we want from the catalogue.
+
     fluxes = ind.loc[data_array, flux_cols].values
-    #print(cat_data)
+
     fluxerrs = ind.loc[data_array,flux_errs_cols].values
     print(fluxes)
-    # Turn these into a 2D array.
+
     photometry = np.c_[fluxes, fluxerrs]
 
-    # blow up the errors associated with any missing fluxes.
     for i in range(len(photometry)):
         if (photometry[i, 0] == 0.) or (photometry[i, 1] <= 0):
             photometry[i,:] = [0., 9.9*10**99.]
