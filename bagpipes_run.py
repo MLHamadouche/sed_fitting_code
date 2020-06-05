@@ -123,8 +123,12 @@ def load_data(data_array):
 
 galaxy = pipes.galaxy('CDFS_HST034930', ld.load_vandels, filt_list=filters, spectrum_exists=False)
 galaxy.plot()
-fit_obj = pipes.fit(galaxy, fit_instructions, run='.', time_calls=False, n_posterior=500)
-
+fit = pipes.fit(galaxy, fit_instructions, run='.', time_calls=False, n_posterior=500)
+fit.fit(verbose=True, n_live=400, mpi_off=False)
+fit.plot_spectrum_posterior()  # Shows the input and fitted spectrum/photometry
+fit.plot_sfh_posterior()       # Shows the fitted star-formation history
+fit.plot_1d_posterior()        # Shows 1d posterior probability distributions
+fit.plot_corner()
 #fit_cat = pipes.fit_catalogue(data, fit_instructions, ld.load_vandels, spectrum_exists=False,
                               #cat_filt_list=filters, make_plots=True, run="ecdfs_cat")
 
