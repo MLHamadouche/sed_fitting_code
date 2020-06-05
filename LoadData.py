@@ -4,13 +4,11 @@ import pandas as pd
 from astropy.table import Table
 import os
 import re
-#flux_cols  = ['U_flux','B_flux','V_flux','R_flux','i_flux','z_flux','newz_flux','nb921_flux','Y_flux','J_flux','H_flux','K_flux']
-#flux_errs_cols = ['U_err','B_err','V_err','R_err','i_err','z_err','newz_err','nb921_err','Y_err','J_err','H_err','K_err']
 
 def find_file(ID, extension):
-    #ID = ID.split()[1]
     new_ID = re.search('\d+', ID).group()
-
+    new_ID = new_ID.lstrip('0')
+    print(new_ID)
     for root, dirs, files in os.walk('/Users/PhDStuff/sed_fitting_code'):
         if ID.startswith("CDFS"):
             files = [filename for filename in files if filename.startswith("VANDELS_CDFS") and filename.endswith(".{ext}".format(ext=extension))]
@@ -20,13 +18,13 @@ def find_file(ID, extension):
 
         for filename in files:
             path = os.path.join(root, filename)
-            print(path)
+
             data_file = Table.read(path).to_pandas()
-            #print(data_file)
             catalog = pd.DataFrame(data_file)
-            ID_list = catalog['ID']
-            print(ID_list)
-            if new_ID in ID_list:
+            ID_list = catalog['ID'].astype(str)
+
+            if new_ID in ID_list.values:
+                print(new_ID)
                 both = os.path.split(path)
                 print(both)
                 print(path)
@@ -34,24 +32,32 @@ def find_file(ID, extension):
                 print(prefix_for_load)
                 prefix = prefix_for_load.split('VANDELS_')[1]
                 pre = prefix.split('_PHOT')[0]
-                #print(pre)
-                return path, pre
+                cols = catalog.columns.str.rstrip('')
+            all_cols = cols.to_list()
+            fluxcols = all_cols[5:]
+            flux_errs = []
+            flux = []
+            for f in fluxcols:
+                if f.endswith('err'):
+                    flux_errs.append(f)
+                else:
+                    flux.append(f)
+            return path, pre, flux_errs, flux, new_ID
 #data_array = 'CDFS247586'
-path, prefix = find_file('CDFS416284', 'fits')
+#path, prefix, flux_errs, flux, new_ID = find_file('UDS_HST000149', 'fits')
 
-print(f'path: {path}, prefix:{prefix}')
+#print(f'path:{ path}\nprefix:{ prefix}\n flux: {flux}\n flux_errs: {flux_errs}')
 
-cat_file = Table.read(path).to_pandas()
-catalog = pd.DataFrame(cat_file)
+def load_vandels(object):
+    path, prefix, flux_errs, flux_cols, new_ID = find_file(object, 'fits')
+    cat_file = Table.read(path).to_pandas()
+    catalog = pd.DataFrame(cat_file)
+    ind = catalog.set_index(str(prefix)+ catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))# + catalog['CAT'].str.decode("utf-8"))
 
-def load_vandels(data_array):
-
-    ind = catalog.set_index(str(prefix) + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0")) + catalog['CAT'].astype('udf8')
-    # Extract the object we want from the catalogue.
-    fluxes = ind.loc[data_array, flux_cols].values
-
-    fluxerrs = ind.loc[data_array,flux_errs_cols].values
-
+    fluxes = ind.loc[object, flux_cols].values
+    fluxes = np.array(fluxes, dtype=float)
+    fluxerrs = ind.loc[object,flux_errs].values
+    fluxerrs = np.array(fluxerrs,dtype=float)
     photometry = np.c_[fluxes, fluxerrs]
 
     for i in range(len(photometry)):
@@ -69,3 +75,6 @@ def load_vandels(data_array):
             photometry[i, 1] = photometry[i, 0]/max_snr
 
     return photometry
+
+
+#print(load_vandels('CDFS_HST034930'))
