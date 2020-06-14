@@ -24,7 +24,7 @@ fit_instructions["dust"] = dust
 'VIMOS_U_flux', 'F435W_flux', 'F606W_flux', 'F775W_flux', 'F814W_flux',
 'F850LP_flux', 'F098M_flux', 'F105W_flux', 'F125W_flux', 'F160W_flux', 'Ks_ISAAC_flux',
 'Ks_HAWKI_flux', 'CH1_flux', 'CH2_flux'
-
+"""
 filters = ["/Users/PhDStuff/sed_fitting_code/filters/VIMOS_U",
             "/Users/PhDStuff/sed_fitting_code/filters/f435w",
             "/Users/PhDStuff/sed_fitting_code/filters/f606w","/Users/PhDStuff/sed_fitting_code/filters/f775w","/Users/PhDStuff/sed_fitting_code/filters/f814w",
@@ -32,7 +32,7 @@ filters = ["/Users/PhDStuff/sed_fitting_code/filters/VIMOS_U",
             "/Users/PhDStuff/sed_fitting_code/filters/f125w","/Users/PhDStuff/sed_fitting_code/filters/f160w",
             "/Users/PhDStuff/sed_fitting_code/filters/ISAAC_Ks","/Users/PhDStuff/sed_fitting_code/filters/HAWKI_K","/Users/PhDStuff/sed_fitting_code/filters/CH1",
             "/Users/PhDStuff/sed_fitting_code/filters/CH2"]
-
+"""
 """
 #filters_list = np.loadtxt("//Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters/massi.filt_list", dtype='str')
 exp = {}                          # Tau model star formation history component
@@ -118,10 +118,12 @@ def load_data(data_array):
     return photometry
 
 """
-
+cdfs_ground_filt =  np.loadtxt("UDS_HST_filt_list.txt", dtype="str")
 #filters = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
-
-galaxy = pipes.galaxy('CDFS_HST034930', ld.load_vandels, filt_list=filters, spectrum_exists=False)
+ID ='UDS_HST000149'
+#ID= 'CDFS_HST034930'
+#ID = 'UDS_GROUND055033'
+galaxy = pipes.galaxy(ID, ld.load_vandels, filt_list=cdfs_ground_filt, spectrum_exists=False)
 galaxy.plot()
 fit = pipes.fit(galaxy, fit_instructions, run='.', time_calls=False, n_posterior=500)
 fit.fit(verbose=True, n_live=400, mpi_off=False)

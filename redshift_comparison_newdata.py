@@ -56,32 +56,32 @@ Nco_rm, CO_percentage_rm, dz_rm, CO_rm, sigma_dz_rm, sigdz_rm = stats_z(massi_z,
 spc = np.random.uniform(0., 6.5, size=(1207))
 #pht_plus = 0.85*spec_z - 0.15
 #pht_neg  = 1.15*spec_z + 0.15
-pht_plus = 0.85*rjm_z - 0.15
-pht_neg  = 1.15*rjm_z+ 0.15
+pht_plus = 0.85*spec_z - 0.15
+pht_neg  = 1.15*spec_z+ 0.15
 x=(pht_plus+0.15)/0.85
 x2=(pht_neg-0.15)/1.15
 spc1 = np.random.uniform(0., 6.5, size=(16))
 spc2 = np.random.uniform(0., 6.5, size=(11))
 #plt.scatter(ross_z, massi_z, color="m", s = 4)
-plt.scatter(rjm_z, massi_z, color='darkseagreen', s = 12, marker='o', alpha = 0.9, edgecolors='black',  linewidth=0.5)
-plt.scatter(rjm_z[dz_rm>0.15], massi_z[dz_rm>0.15], s=8, color ='lightcoral', marker='o',alpha=0.9, edgecolors= "black", linewidth=0.5)
-plt.scatter(rjm_z[dz_rm<-0.15], massi_z[dz_rm<-0.15], s=8, color ='lightcoral', marker='o', alpha=0.9, edgecolors= "black", linewidth=0.5)
+plt.scatter(spec_z, massi_z, color='darkseagreen', s = 12, marker='o', alpha = 0.9, edgecolors='black',  linewidth=0.5)
+plt.scatter(spec_z[dz_m>0.15], massi_z[dz_m>0.15], s=8, color ='lightcoral', marker='o',alpha=0.9, edgecolors= "black", linewidth=0.5)
+plt.scatter(spec_z[dz_m<-0.15], massi_z[dz_m<-0.15], s=8, color ='lightcoral', marker='o', alpha=0.9, edgecolors= "black", linewidth=0.5)
 #plt.scatter(ross_z, outliers, color = 'k', s=4)
-plt.plot(rjm_z, rjm_z, color="k", linewidth=0.7, label = '1:1 line')
-plt.plot(rjm_z, pht_neg, ':', color = "k", linewidth=0.3)
-plt.plot(rjm_z, pht_plus, ':', color = "k", linewidth=0.3)
+plt.plot(spec_z, spec_z, color="k", linewidth=0.7, label = '1:1 line')
+plt.plot(spec_z, pht_neg, ':', color = "k", linewidth=0.3)
+plt.plot(spec_z, pht_plus, ':', color = "k", linewidth=0.3)
 #plt.xlim(0.,6.8)
 #plt.ylim(0.,6.8)
-plt.xlabel(r'rjm_z')
+plt.xlabel(r'z_spec')
 plt.ylabel(r'Massi_z')
 props = dict(boxstyle='round', facecolor='darkseagreen', alpha=0.2)
 #t = plt.text(0.1, 0.9, 'serif', size='small' )
 textstr = '\n'.join((
     r'$N_{obj}$: $%s$' % (1207, ),
-    r'$CO$%%: $%.3f$' % (CO_percentage_rm, ),
-    r'$\sigma_{dz}: %.4f$' % sigma_dz_rm, ))
+    r'$CO$%%: $%.3f$' % (CO_percentage_m, ),
+    r'$\sigma_{dz}: %.4f$' % sigma_dz_m, ))
 
 plt.text(0.2, 5., textstr, family='sans-serif', variant='normal', verticalalignment='top', bbox=props)
 plt.title(r'ECDFS Validation Comparison')
-plt.savefig('ECDFS_rjm_validation_redshifts.png')
+plt.savefig('ECDFS_specz_validation_redshifts.pdf')
 plt.close()
