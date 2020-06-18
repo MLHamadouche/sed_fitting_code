@@ -66,9 +66,9 @@ def find_file(ID, extension):
 
         return new_path, pre, flux_errs, flux, new_ID
 #'CDFS_GROUND000013'
-path, prefix, flux_errs, flux, new_ID = find_file('CDFS-HST000013', 'fits')
+#path, prefix, flux_errs, flux, new_ID = find_file('CDFS-HST000013', 'fits')
 #'CDFS_HST034930'
-print(f'path:{ path}\nprefix:{prefix}\n flux: {flux}\n flux_errs: {flux_errs}')
+#print(f'path:{ path}\nprefix:{prefix}\n flux: {flux}\n flux_errs: {flux_errs}')
 
 def load_vandels(object):
     path, prefix, flux_errs, flux_cols, new_ID = find_file(object, 'fits')
@@ -84,31 +84,37 @@ def load_vandels(object):
         print('GROUND CATALOGUES')
         for f in flux_cols:
             iso = ind.loc[object, 'isofactor']
-
             if '_2as' in f:
                 flux.append(ind.loc[object, f]*iso)
+                offset = np.loadtxt("vandels/offsets_cdfs_ground.txt")
             else:
                 flux.append(ind.loc[object, f])
+                offset = np.loadtxt("vandels/offsets_uds_ground.txt")
 
         for fe in flux_errs:
             iso = ind.loc[object, 'isofactor']
 
             if '_2as' in fe:
                 ferrs.append(ind.loc[object,fe]*iso)
+                #offset = np.loadtxt("vandels/offsets_cdfs_ground.txt")
             else:
                 ferrs.append(ind.loc[object,fe])
 
 
         photometry = np.c_[flux,ferrs]
+        photometry[:,0]*=offset
 
     else:
         print('HST CATALOGUES')
-
+        if 'UDS' in object:
+            offset = np.loadtxt("vandels/offsets_uds_hst.txt")
+        else:
+            offset = np.loadtxt("vandels/offsets_cdfs_hst.txt")
         fluxes=ind.loc[object,flux_cols].values
         fluxerrs=ind.loc[object, flux_errs].values
         photometry = np.c_[fluxes,fluxerrs]
         #offsets = np.loadtxt("vandels/offsets_uds_hst.txt")
-        photometry[:,0]#*=offsets
+        photometry[:,0]*=offset
 
     for i in range(len(photometry)):
         if (photometry[i, 0] == 0.) or (photometry[i, 1] <= 0):
@@ -128,6 +134,6 @@ def load_vandels(object):
     return photometry
 
 #ID = 'UDS_HST035930'
-#print(load_vandels('CDFS_HST000001'))
+#print(load_vandels('UDS-HST035930'))
 #print(a_load.load_vandels_phot('UDS-HST035930SELECT'))
 #'CDFS_GROUND000013'
