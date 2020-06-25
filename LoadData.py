@@ -2,10 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from astropy.table import Table
+from astropy.io import fits
 import os
 import re
 from collections import OrderedDict
 import adam_load_vandels as a_load
+from glob import glob
 
 #fluxes and flux errors columns are in wavelength order same as filters
 #must input ID as e.g. CDFS_GROUND0000xx where chars are filled to 6 padded by leading zeroes.
@@ -141,12 +143,25 @@ def load_vandels(object):
 
 
 def load_vandels_spectra(ID):
+    print(ID)
     globpath = os.path.join('vandelsspec/', '*.fits')
     filelist = glob(globpath)
-    if ID in filelist:
-        hdu = fits.open(filelist[ID])
-    wav = hdu[1].data["WAVE"][0]
+    #print(filelist[0])
+    for i in range(len(filelist)):
+        #print(filelist[i])
+        if ID in str(filelist[i]):
+            hdulist = fits.open(filelist[i])
+            print(filelist[i])
+            flux = hdulist[0].data
+            flux_err = hdulist[3].data
+            redshift = hdulist[0].header['HIERARCH PND Z']
+            wav_first_pixel = hdulist[0].header['CRVAL1']
+            delt_wav = hdulist[0].header['CDELT1']
+            wa_end = wav_first_pixel + (2154*delt_wav)
+            wave = np.arange(wav_first_pixel, wa_end, delt_wav)
+            spectrum=np.c_[wave, flux, flux_err]
 
-    flux = hdu[1].data["FLUX"][0]
+    return spectrum
 
-    flux_err = hdu[1].data["ERR"][0]
+
+print(load_vandels_spectra('UDS003618'))

@@ -23,7 +23,8 @@ print(hdulist.info())
 #print(hdulist[0].columns)
 #flux = hdulust[0].data
 flux = hdulist[0].data
-print(flux)
+flux_err = hdulist[3].data
+print(flux, flux_err)
 #print(np.arange(0,30000))
 redshift = hdulist[0].header['HIERARCH PND Z']
 
@@ -33,26 +34,25 @@ delt_wav = hdulist[0].header['CDELT1']
 #wave = np.arange(wav_first_pixel, , delt_wav )
 #waves = np.array(wave)
 #print(wave)
-wa = np.zeros(2154)
+
 wa_end = wav_first_pixel + (2154*delt_wav)
 wa = np.arange(wav_first_pixel, wa_end, delt_wav)
 print(len(wa))
+spectrum  = np.c_[wa, flux, flux_err]
 
 #wave=np.arange(0,30000,30000/2154)
 #waves = np.array(wave)
 #print(sp1[0].header)
-#plt.plot(waves*(1+float(redshift)),flux, linewidth = 0.5)
-#ax = plt.gca()
+plt.plot(wa*(1+float(redshift)),flux, linewidth = 0.5)
+ax = plt.gca()
 # recompute the ax.dataLim
-#ax.relim()
+ax.relim()
 # update ax.viewLim using the new dataLim
-#ax.autoscale_view()
-#plt.draw()
-#plt.show()
-#print(hdulist['WAVE'].data)
+ax.autoscale_view()
+plt.draw()
+plt.show()
 
-#hdu = fits.open("/Users/massissiliahamadouche/Downloads/sc_CDFS000031_P2M1Q3_P2M2Q3_P2M3Q3_P2M4Q3_006_1.fits")
-#print(hdu[1].header["WAVE"][0], hdu[1].header['FLUX'][0])
+
 """
 for i in range(len(filelist)):
     sp = fits.open(filelist[i])
