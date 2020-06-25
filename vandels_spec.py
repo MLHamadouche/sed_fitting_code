@@ -19,18 +19,29 @@ redshift = []
 flag = []
 
 hdulist = fits.open(filelist[0])
-
+print(hdulist.info())
 #print(hdulist[0].columns)
 #flux = hdulust[0].data
-data = hdulist[0].data
-print(data)
+flux = hdulist[0].data
+print(flux)
 #print(np.arange(0,30000))
 redshift = hdulist[0].header['HIERARCH PND Z']
+
+wav_first_pixel = hdulist[0].header['CRVAL1']
+delt_wav = hdulist[0].header['CDELT1']
+
+#wave = np.arange(wav_first_pixel, , delt_wav )
+#waves = np.array(wave)
+#print(wave)
+wa = np.zeros(2154)
+wa_end = wav_first_pixel + (2154*delt_wav)
+wa = np.arange(wav_first_pixel, wa_end, delt_wav)
+print(len(wa))
 
 #wave=np.arange(0,30000,30000/2154)
 #waves = np.array(wave)
 #print(sp1[0].header)
-#plt.plot(waves*(1+float(redshift)), scidata, linewidth = 0.5)
+#plt.plot(waves*(1+float(redshift)),flux, linewidth = 0.5)
 #ax = plt.gca()
 # recompute the ax.dataLim
 #ax.relim()
