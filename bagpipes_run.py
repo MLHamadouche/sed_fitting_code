@@ -118,7 +118,7 @@ def load_data(data_array):
     return photometry
 
 """
-cdfs_ground_filt =  np.loadtxt("UDS_HST_filt_list.txt", dtype="str")
+cdfs_ground_filt =  np.loadtxt("catalogs/UDS_HST_filt_list.txt", dtype="str")
 #filters = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
 ID ='UDS_HST000149'
 #ID= 'CDFS_HST034930'

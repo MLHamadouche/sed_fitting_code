@@ -137,3 +137,16 @@ def load_vandels(object):
 #print(load_vandels('UDS-HST035930'))
 #print(a_load.load_vandels_phot('UDS-HST035930SELECT'))
 #'CDFS_GROUND000013'
+
+
+
+def load_vandels_spectra(ID):
+    globpath = os.path.join('vandelsspec/', '*.fits')
+    filelist = glob(globpath)
+    if ID in filelist:
+        hdu = fits.open(filelist[ID])
+    wav = hdu[1].data["WAVE"][0]
+
+    flux = hdu[1].data["FLUX"][0]
+
+    flux_err = hdu[1].data["ERR"][0]
