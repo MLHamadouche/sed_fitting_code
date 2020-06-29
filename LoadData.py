@@ -16,7 +16,7 @@ def find_file(ID, extension):
     new_ID = re.search('\d+', ID).group()
     new_ID = new_ID.lstrip('0')
     print(new_ID)
-    for root, dirs, files in os.walk('/Users/PhDStuff/sed_fitting_code'):
+    for root, dirs, files in os.walk('/Users/PhDStuff/sed_fitting_code/catalogs'):
         if "CDFS" in ID:
             #files = [filename for filename in files if filename.startswith("VANDELS_CDFS") and filename.endswith(".{ext}".format(ext=extension))]
             if 'HST' in ID:
@@ -43,6 +43,11 @@ def find_file(ID, extension):
             prefix_for_load = both[1]
             prefix = prefix_for_load.split('VANDELS_')[1]
             pre = prefix.split('_PHOT')[0]
+            pre1 = pre.split('_')[0]
+            pre2 = pre.split('_')[1]
+            #print(pre1, pre2)
+            new_pre = pre1+'-'+pre2
+            #print(new_pre)
             cols = catalog.columns.str.rstrip('')
             all_cols = cols.to_list()
             fluxcols = all_cols[5:]
@@ -66,19 +71,20 @@ def find_file(ID, extension):
                     else:
                         flux.append(fe)
 
-        return new_path, pre, flux_errs, flux, new_ID
+        return new_path, new_pre, flux_errs, flux, new_ID
 #'CDFS_GROUND000013'
 #path, prefix, flux_errs, flux, new_ID = find_file('CDFS-HST000013', 'fits')
 #'CDFS_HST034930'
 #print(f'path:{ path}\nprefix:{prefix}\n flux: {flux}\n flux_errs: {flux_errs}')
+passive_cut = Table.read('FirstProjectCatalogs/xmatch_spec_derived237objs.fits').to_pandas()
 
 def load_vandels(object):
     path, prefix, flux_errs, flux_cols, new_ID = find_file(object, 'fits')
-    print(path,prefix, flux_errs, flux_cols)
+    #print(path, prefix, flux_errs, flux_cols)
     cat_file = Table.read(path).to_pandas()
     catalog = pd.DataFrame(cat_file)
     #print(catalog['CAT'].str.decode('utf-8'))
-    ind = catalog.set_index(str(prefix)+ catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))# + catalog['CAT'].str.decode("utf-8"))
+    ind = catalog.set_index(str(prefix) + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))# + catalog['CAT'].str.decode("utf-8"))
     #print(ind)
     if 'isofactor' in catalog.columns:
         flux = []
@@ -87,24 +93,29 @@ def load_vandels(object):
         for f in flux_cols:
             iso = ind.loc[object, 'isofactor']
             if '_2as' in f:
-                flux.append(ind.loc[object, f]*iso)
+                flux.append((ind.loc[object,f]*iso).values.astype(float))
                 offset = np.loadtxt("vandels/offsets_cdfs_ground.txt")
             else:
-                flux.append(ind.loc[object, f])
+                flux.append((ind.loc[object, f]).values.astype(float))
                 offset = np.loadtxt("vandels/offsets_uds_ground.txt")
+
 
         for fe in flux_errs:
             iso = ind.loc[object, 'isofactor']
 
             if '_2as' in fe:
-                ferrs.append(ind.loc[object,fe]*iso)
+                ferrs.append((ind.loc[object,fe]*iso).values.astype(float))
                 #offset = np.loadtxt("vandels/offsets_cdfs_ground.txt")
             else:
-                ferrs.append(ind.loc[object,fe])
+                ferrs.append((ind.loc[object,fe]).values.astype(float))
 
+        photometry = np.zeros((len(fluxes), 2))
+        photometry[:,0] = flux
+        photometry[:,1] = ferrs
 
-        photometry = np.c_[flux,ferrs]
-        photometry[:,0]*=offset
+        photometry[:,0] *= offset
+        #photometry = np.c_[flux,ferrs]
+        #photometry[:,0]*=offset
 
     else:
         print('HST CATALOGUES')
@@ -112,12 +123,17 @@ def load_vandels(object):
             offset = np.loadtxt("vandels/offsets_uds_hst.txt")
         else:
             offset = np.loadtxt("vandels/offsets_cdfs_hst.txt")
-        fluxes=ind.loc[object,flux_cols].values
-        fluxerrs=ind.loc[object, flux_errs].values
-        photometry = np.c_[fluxes,fluxerrs]
+        fluxes=ind.loc[object,flux_cols].values.astype(float)
+        fluxerrs=ind.loc[object, flux_errs].values.astype(float)
+        #photometry = np.c_[fluxes,fluxerrs]
         #offsets = np.loadtxt("vandels/offsets_uds_hst.txt")
-        photometry[:,0]*=offset
+        #photometry[:,0]*=offset
+        photometry = np.zeros((len(fluxes), 2))
+        photometry[:,0] = fluxes
+        photometry[:,1] = fluxerrs
 
+        photometry[:,0] *= offset
+        
     for i in range(len(photometry)):
         if (photometry[i, 0] == 0.) or (photometry[i, 1] <= 0):
             photometry[i,:] = [0., 9.9*10**99.]
@@ -139,9 +155,6 @@ def load_vandels(object):
 #print(load_vandels('UDS-HST035930'))
 #print(a_load.load_vandels_phot('UDS-HST035930SELECT'))
 #'CDFS_GROUND000013'
-
-
-
 def load_vandels_spectra(ID):
     print(ID)
     globpath = os.path.join('vandelsspec/', '*.fits')
@@ -163,5 +176,4 @@ def load_vandels_spectra(ID):
 
     return spectrum
 
-
-print(load_vandels_spectra('UDS003618'))
+#print(load_vandels_spectra('UDS003618'))

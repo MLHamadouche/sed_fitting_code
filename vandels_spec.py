@@ -18,7 +18,7 @@ objDEC = []
 redshift = []
 flag = []
 
-hdulist = fits.open(filelist[0])
+hdulist = fits.open(filelist[-1])
 print(hdulist.info())
 #print(hdulist[0].columns)
 #flux = hdulust[0].data
@@ -43,7 +43,7 @@ spectrum  = np.c_[wa, flux, flux_err]
 #wave=np.arange(0,30000,30000/2154)
 #waves = np.array(wave)
 #print(sp1[0].header)
-plt.plot(wa*(1+float(redshift)),flux, linewidth = 0.5)
+plt.plot(wa*(1+float(redshift)), flux, linewidth = 0.5)
 ax = plt.gca()
 # recompute the ax.dataLim
 ax.relim()

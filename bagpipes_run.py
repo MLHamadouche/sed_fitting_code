@@ -6,7 +6,7 @@ from astropy.io import fits
 from astropy.table import Table
 import pandas as pd
 import LoadData as ld
-
+"""
 burst = {}
 burst["age"] = (0., 13.)           # Vary the age between 0 and 13 Gyr
 burst["metallicity"] = 1.0  # Vary stellar metallicity between 0 and 5 times Solar
@@ -20,6 +20,7 @@ fit_instructions = {}
 fit_instructions["redshift"] = (0., 10.)
 fit_instructions["burst"] = burst
 fit_instructions["dust"] = dust
+"""
 
 'VIMOS_U_flux', 'F435W_flux', 'F606W_flux', 'F775W_flux', 'F814W_flux',
 'F850LP_flux', 'F098M_flux', 'F105W_flux', 'F125W_flux', 'F160W_flux', 'Ks_ISAAC_flux',
@@ -35,6 +36,23 @@ filters = ["/Users/PhDStuff/sed_fitting_code/filters/VIMOS_U",
 """
 """
 #filters_list = np.loadtxt("//Users/massissiliahamadouche/anaconda3/lib/python3.7/site-packages/bagpipes/filters/massi.filt_list", dtype='str')
+"""
+exp = {}
+exp["age"] = (0.1, 15.)
+exp["tau"] = (0.3, 10.)
+exp["massformed"] = (1., 15.)
+exp["metallicity"] = (0., 2.5)
+
+dust = {}
+dust["type"] = "Calzetti"
+dust["Av"] = (0., 2.)
+
+fit_instructions = {}
+fit_instructions["redshift"] = (0., 10.)
+fit_instructions["exponential"] = exp
+fit_instructions["dust"] = dust
+
+"""
 exp = {}                          # Tau model star formation history component
 exp["age"] = 3.                   # Gyr
 exp["tau"] = 0.75                 # Gyr
@@ -43,12 +61,16 @@ exp["metallicity"] = 0.5
 dust = {}                         # Dust component
 dust["type"] = "Calzetti"         # Define the shape of the attenuation curve
 dust["Av"] = 0.2
+fit_instructions = {}
+fit_instructions["redshift"] = (0., 10.)
+fit_instructions["burst"] = burst
+fit_instructions["dust"] = dust
 model_components = {}                   # The model components dictionary
 model_components["redshift"] = 1.0      # Observed redshift
 model_components["exponential"] = exp
 model_components["dust"] = dust
 
-model = pipes.model_galaxy(model_components, filt_list = filters)
+#model = pipes.model_galaxy(model_components, filt_list = filters)
 
 #print(filters_list)
 
@@ -57,7 +79,7 @@ model = pipes.model_galaxy(model_components, filt_list = filters)
 
 fig = model.plot()
 fig = model.sfh.plot()
-
+"""
 """
 #model = pipes.model_galaxy(model_components, spec_wavs=np.arange(5000., 10000., 5.))
 
@@ -77,7 +99,7 @@ fig = model.sfh.plot()
 
 #flux_cols = ['CH2_flux', 'Ks_HAWKI_flux','Ks_ISAAC_flux','CH1_flux','VIMOS_U_flux','F098M_flux','F105W_flux','F125W_flux','F160W_flux','F435W_flux','F606W_flux','F775W_flux','F814W_flux','F850LP_flux']
 #flux_errs_cols = ['CH2_err', 'Ks_HAWKI_err','Ks_ISAAC_err','CH1_err','VIMOS_U_err','F098M_err','F105W_err','F125W_err','F160W_err', 'F435W_err','F606W_err', 'F775W_err','F814W_err', 'F850LP_err']
-"""
+
 catalog = Table.read('/Users/massi_zphot_test/ecdfs_zphot_validation_phot_zspec.fits').to_pandas()
 objects = np.array('ECDFS'+ catalog['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
 flux_cols = [ 'U_flux', 'B_flux', 'I484_flux' , 'I527_flux' ,'I598_flux',  'V606_flux', 'I624_flux' , 'I651_flux' ,'R', 'I679'  ,'I738' ,'I767' ,'z850_flux',  'Y_flux' , 'J_flux' , 'H_flux' , 'K_flux' , 'CH1_flux' , 'CH2_flux']
@@ -118,20 +140,41 @@ def load_data(data_array):
     return photometry
 
 """
-cdfs_ground_filt =  np.loadtxt("catalogs/UDS_HST_filt_list.txt", dtype="str")
-#filters = ["CH2", "HAWKI_K","ISAAC_Ks","CH1","VIMOS_U","f098m","f105w","f125w","f160w", "f435w","f606w", "f775w","f814w", "f850lp"]
-ID ='UDS_HST000149'
-#ID= 'CDFS_HST034930'
-#ID = 'UDS_GROUND055033'
-galaxy = pipes.galaxy(ID, ld.load_vandels, filt_list=cdfs_ground_filt, spectrum_exists=False)
-galaxy.plot()
-fit = pipes.fit(galaxy, fit_instructions, run='.', time_calls=False, n_posterior=500)
-fit.fit(verbose=True, n_live=400, mpi_off=False)
+
+uds_hst_filt =  np.loadtxt("catalogs/UDS_HST_filt_list.txt", dtype="str")
+uds_ground_filt = np.loadtxt("catalogs/UDS_GROUND_filt_list.txt", dtype = "str")
+cdfs_ground_filt = np.loadtxt("catalogs/CDFS_GROUND_filt_list.txt", dtype="str")
+cdfs_hst_filt= np.loadtxt("catalogs/CDFS_HST_filt_list.txt", dtype="str")
+
+passive_cut = Table.read('FirstProjectCatalogs/xmatch_spec_derived237objs.fits').to_pandas()
+print(passive_cut)
+#objects = np.array('CDFS'+ ross_objects['ID'].astype(str).str.pad(6, side='left', fillchar='0'))
+objects = np.array(passive_cut['FIELD'].str.decode("utf-8").str.rstrip() + passive_cut['ID_1'].astype(str).str.pad(6, side='left', fillchar='0'))
+
+print(objects[1])
+
+
+all_filt_lists= [uds_hst_filt, uds_ground_filt, cdfs_ground_filt, cdfs_hst_filt]
+print(all_filt_lists)
+#galaxy = pipes.galaxy('UDS003618', ld.load_vandels_spectra, photometry_exists=False)
+#fig = galaxy.plot()
+#fit = pipes.fit(galaxy, fit_instructions, run="spectroscopy")
+
+#fit.fit(verbose=False)
+
+
+#galaxy = pipes.galaxy(objects, ld.load_vandels, filt_list=all_filt_lists, spectrum_exists=False)
+#galaxy.plot()
+#fit = pipes.fit(galaxy, fit_instructions, run='.', time_calls=False, n_posterior=500)
+#fit.fit(verbose=True, n_live=400, mpi_off=False)
+
+
+fit_cat = pipes.fit_catalogue(objects[1], fit_instructions, ld.load_vandels, spectrum_exists=False,
+                cat_filt_list=all_filt_lists, make_plots=True, run="vandels_objects")
+
 fit.plot_spectrum_posterior()  # Shows the input and fitted spectrum/photometry
 fit.plot_sfh_posterior()       # Shows the fitted star-formation history
 fit.plot_1d_posterior()        # Shows 1d posterior probability distributions
 fit.plot_corner()
-#fit_cat = pipes.fit_catalogue(data, fit_instructions, ld.load_vandels, spectrum_exists=False,
-                              #cat_filt_list=filters, make_plots=True, run="ecdfs_cat")
 
-#fit_cat.fit(verbose=True, mpi_serial=True)
+fit_cat.fit(verbose=True, mpi_serial=False)
