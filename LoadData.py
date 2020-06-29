@@ -11,7 +11,6 @@ from glob import glob
 
 #fluxes and flux errors columns are in wavelength order same as filters
 #must input ID as e.g. CDFS_GROUND0000xx where chars are filled to 6 padded by leading zeroes.
-
 def find_file(ID, extension):
     new_ID = re.search('\d+', ID).group()
     new_ID = new_ID.lstrip('0')
@@ -72,12 +71,11 @@ def find_file(ID, extension):
                         flux.append(fe)
 
         return new_path, new_pre, flux_errs, flux, new_ID
+
 #'CDFS_GROUND000013'
 #path, prefix, flux_errs, flux, new_ID = find_file('CDFS-HST000013', 'fits')
 #'CDFS_HST034930'
 #print(f'path:{ path}\nprefix:{prefix}\n flux: {flux}\n flux_errs: {flux_errs}')
-
-
 def load_vandels(object):
     path, prefix, flux_errs, flux_cols, new_ID = find_file(object, 'fits')
     #print(path, prefix, flux_errs, flux_cols)
@@ -99,7 +97,6 @@ def load_vandels(object):
             else:
                 flux.append((ind.loc[object, f]).values.astype(float))
                 offset = np.loadtxt("vandels/offsets_uds_ground.txt")
-
 
         for fe in flux_errs:
             iso = ind.loc[object, 'isofactor']
@@ -151,7 +148,6 @@ def load_vandels(object):
 
 
     return photometry
-
 
 
 #ID = 'UDS_HST035930'
