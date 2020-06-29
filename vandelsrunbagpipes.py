@@ -4,6 +4,8 @@ import pandas as pd
 import LoadData as ld
 from astropy.io import fits
 from astropy.table import Table
+import pymultinest
+import adam_load_vandels as a_load
 
 exp = {}
 exp["age"] = (0.1, 15.)
@@ -26,12 +28,12 @@ cdfs_ground_filt = np.loadtxt("catalogs/CDFS_GROUND_filt_list.txt", dtype="str")
 cdfs_hst_filt= np.loadtxt("catalogs/CDFS_HST_filt_list.txt", dtype="str")
 
 passive_cut = Table.read('FirstProjectCatalogs/xmatch_spec_derived237objs.fits').to_pandas()
-
-objects = (passive_cut['FIELD'].str.decode("utf-8").str.rstrip() + passive_cut['ID_1'].astype(str).str.pad(6, side='left', fillchar='0')).to_list()
-#print(objects)
+redshifts = passive_cut['z_spec']
+ID_list = np.array(passive_cut['FIELD'].str.decode("utf-8").str.rstrip() + passive_cut['ID_1'].astype(str).str.pad(6, side='left', fillchar='0'))
+print(ID_list)
 
 filt_list = []
-for object in objects:
+for object in ID_list:
     if 'CDFS-HST' in object:
         filt_list.append(cdfs_hst_filt)
     elif 'CDFS-GROUND' in object:
@@ -41,11 +43,13 @@ for object in objects:
     else:
         filt_list.append(uds_ground_filt)
 
-fit = pipes.fit_catalogue(objects,fit_instructions,ld.load_vandels, spectrum_exists=False,cat_filt_list=filt_list, make_plots=True, run="vandels_objects")
-#
+
+fit_cat = pipes.fit_catalogue(ID_list, fit_instructions, ld.load_vandels, photometry_exists=True, spectrum_exists=False,
+cat_filt_list=filt_list, make_plots=True, run="vandels_objects", vary_filt_list = True, redshifts=redshifts)
+
 #fit_cat.plot_spectrum_posterior()  # Shows the input and fitted spectrum/photometry
 #fit.plot_sfh_posterior()       # Shows the fitted star-formation history
 #fit.plot_1d_posterior()        # Shows 1d posterior probability distributions
 #fit.plot_corner()
 
-fit.fit(verbose=False, mpi_serial=True)
+fit_cat.fit(verbose=True)

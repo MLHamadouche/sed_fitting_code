@@ -76,13 +76,14 @@ def find_file(ID, extension):
 #path, prefix, flux_errs, flux, new_ID = find_file('CDFS-HST000013', 'fits')
 #'CDFS_HST034930'
 #print(f'path:{ path}\nprefix:{prefix}\n flux: {flux}\n flux_errs: {flux_errs}')
-passive_cut = Table.read('FirstProjectCatalogs/xmatch_spec_derived237objs.fits').to_pandas()
+
 
 def load_vandels(object):
     path, prefix, flux_errs, flux_cols, new_ID = find_file(object, 'fits')
     #print(path, prefix, flux_errs, flux_cols)
     cat_file = Table.read(path).to_pandas()
     catalog = pd.DataFrame(cat_file)
+    #catalog = pd.DataFrame(passive_cut)
     #print(catalog['CAT'].str.decode('utf-8'))
     ind = catalog.set_index(str(prefix) + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))# + catalog['CAT'].str.decode("utf-8"))
     #print(ind)
@@ -133,7 +134,7 @@ def load_vandels(object):
         photometry[:,1] = fluxerrs
 
         photometry[:,0] *= offset
-        
+
     for i in range(len(photometry)):
         if (photometry[i, 0] == 0.) or (photometry[i, 1] <= 0):
             photometry[i,:] = [0., 9.9*10**99.]
@@ -150,6 +151,8 @@ def load_vandels(object):
 
 
     return photometry
+
+
 
 #ID = 'UDS_HST035930'
 #print(load_vandels('UDS-HST035930'))
