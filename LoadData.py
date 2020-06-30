@@ -73,56 +73,65 @@ def find_file(ID, extension):
         return new_path, new_pre, flux_errs, flux, new_ID
 
 #'CDFS_GROUND000013'
-#path, prefix, flux_errs, flux, new_ID = find_file('CDFS-HST000013', 'fits')
+#path, prefix, flux_errs, flux, new_ID = find_file('CDFS-HST000013SELECT', 'fits')
 #'CDFS_HST034930'
 #print(f'path:{ path}\nprefix:{prefix}\n flux: {flux}\n flux_errs: {flux_errs}')
 
 def load_vandels(object):
     path, prefix, flux_errs, flux_cols, new_ID = find_file(object, 'fits')
-
     cat_file = Table.read(path).to_pandas()
     catalog = pd.DataFrame(cat_file)
 
-    ind = catalog.set_index(str(prefix) + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0"))# + catalog['CAT'].str.decode("utf-8"))
-
+    ind = catalog.set_index(str(prefix) + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0") + catalog['CAT'].str.decode("utf-8"))
+    iso = ind.loc[object, 'isofactor']
+    #print(iso)
     if 'isofactor' in catalog.columns:
-        flux = []
-        ferrs = []
         print('GROUND CATALOGUES')
-        for f in flux_cols:
-            iso = ind.loc[object, 'isofactor']
-            if '_2as' in f:
-                flux.append((ind.loc[object,f].astype(float)*iso))
-
-            else:
-                flux.append((ind.loc[object, f].astype(float)))
-
-        for fe in flux_errs:
-            iso = ind.loc[object, 'isofactor']
-
-            if '_2as' in fe:
-                ferrs.append((ind.loc[object,fe].astype(float)*iso))
-            else:
-                ferrs.append((ind.loc[object,fe]).astype(float))
-        if 'UDS' in object:
-            offset = np.loadtxt("vandels/offsets_uds_ground.txt")
-        else:
+        if 'CDFS' in object:
             offset = np.loadtxt("vandels/offsets_cdfs_ground.txt")
+        else:
+            offset = np.loadtxt("vandels/offsets_uds_ground.txt")
 
-        photometry = np.c_[flux,ferrs]
-        photometry[:,0]*=offset
+        fluxes = (ind.loc[object,flux_cols]*iso).astype(float)
+        fluxerrs=ind.loc[object, flux_errs].astype(float)
+        photometry = np.c_[fluxes,fluxerrs]
+        photometry[:,0] *= offset
 
+        #for f in flux_cols:
+        #    iso = ind.loc[object, 'isofactor']
+        #    if '_2as' in f:
+        #        fluxs = ind.loc[object,f].astype(float)*iso
+        #        flux.append(fluxs)
+        #    else:
+        #        fluxs = ind.loc[object, f].astype(float)
+        #        flux.append(fluxs)
+
+        #for fe in flux_errs:
+        #    iso = ind.loc[object, 'isofactor']
+#
+        #    if '_2as' in fe:
+        #        err=ind.loc[object,fe].astype(float)*iso
+        #        ferrs.append(err)
+            #else:
+            #    err = ind.loc[object,fe].astype(float)
+            #    ferrs.append(err)
+
+        #if 'UDS' in object:
+        #    offset = np.loadtxt("vandels/offsets_uds_ground.txt")
+        #    photometry = np.c_[flux,ferrs]
+        #    photometry[:,0]*=offset
+        #else:
+        #    offset = np.loadtxt("vandels/offsets_cdfs_ground.txt")
     else:
         print('HST CATALOGUES')
         if 'UDS' in object:
             offset = np.loadtxt("vandels/offsets_uds_hst.txt")
         else:
             offset = np.loadtxt("vandels/offsets_cdfs_hst.txt")
+
         fluxes = ind.loc[object,flux_cols].values.astype(float)
         fluxerrs=ind.loc[object, flux_errs].values.astype(float)
         photometry = np.c_[fluxes,fluxerrs]
-        #offsets = np.loadtxt("vandels/offsets_uds_hst.txt")
-
         photometry[:,0] *= offset
 
     for i in range(len(photometry)):
@@ -144,8 +153,10 @@ def load_vandels(object):
 
 
 #ID = 'UDS_HST035930'
-print(load_vandels('CDFS-GROUND101602'))
-#print(a_load.load_vandels_phot('UDS-HST035930SELECT'))
+#print(load_vandels('UDS-HST035930'))
+#print(a_load.load_vandels_phot('UDS-GROUND195491SELECT'))
+print(load_vandels('UDS-GROUND195491SELECT'))
+
 #'CDFS_GROUND000013'
 def load_vandels_spectra(ID):
     print(ID)
@@ -168,4 +179,4 @@ def load_vandels_spectra(ID):
 
     return spectrum
 
-#print(load_vandels_spectra('UDS003618'))
+#print(load_vandels_spectra('UDS003618').shape)
