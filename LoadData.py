@@ -10,28 +10,25 @@ import adam_load_vandels as a_load
 from glob import glob
 
 #fluxes and flux errors columns are in wavelength order same as filters
-#must input ID as e.g. CDFS_GROUND0000xx where chars are filled to 6 padded by leading zeroes.
+#must input ID as e.g. CDFS_GROUND0000xxSELECT where chars are filled to 6 padded by leading zeroes.
+
 def find_file(ID, extension):
     new_ID = re.search('\d+', ID).group()
     new_ID = new_ID.lstrip('0')
     print(new_ID)
     for root, dirs, files in os.walk('/Users/PhDStuff/sed_fitting_code/catalogs'):
         if "CDFS" in ID:
-            #files = [filename for filename in files if filename.startswith("VANDELS_CDFS") and filename.endswith(".{ext}".format(ext=extension))]
             if 'HST' in ID:
                 files = "VANDELS_CDFS_HST_PHOT_v1.0.fits"
             else:
                 files = "VANDELS_CDFS_GROUND_PHOT_v1.0.fits"
         else:
-            #files = [filename for filename in files if filename.startswith("VANDELS_UDS") and filename.endswith(".{ext}".format(ext=extension))]
             if 'HST' in ID:
                 files = "VANDELS_UDS_HST_PHOT_v1.0.fits"
             else:
                 files = "VANDELS_UDS_GROUND_PHOT_v1.0.fits"
         print(files)
-        #for filename in files:
         path = os.path.join(root, files)
-            #print(path)
         data_file = Table.read(path).to_pandas()
         catalog = pd.DataFrame(data_file)
         ID_list = catalog['ID'].astype(str)
@@ -83,9 +80,9 @@ def load_vandels(object):
     catalog = pd.DataFrame(cat_file)
 
     ind = catalog.set_index(str(prefix) + catalog['ID'].astype(str).str.pad(6, side="left", fillchar="0") + catalog['CAT'].str.decode("utf-8"))
-    iso = ind.loc[object, 'isofactor']
     #print(iso)
     if 'isofactor' in catalog.columns:
+        iso = ind.loc[object, 'isofactor']
         print('GROUND CATALOGUES')
         if 'CDFS' in object:
             offset = np.loadtxt("vandels/offsets_cdfs_ground.txt")
@@ -96,32 +93,6 @@ def load_vandels(object):
         fluxerrs=ind.loc[object, flux_errs].astype(float)
         photometry = np.c_[fluxes,fluxerrs]
         photometry[:,0] *= offset
-
-        #for f in flux_cols:
-        #    iso = ind.loc[object, 'isofactor']
-        #    if '_2as' in f:
-        #        fluxs = ind.loc[object,f].astype(float)*iso
-        #        flux.append(fluxs)
-        #    else:
-        #        fluxs = ind.loc[object, f].astype(float)
-        #        flux.append(fluxs)
-
-        #for fe in flux_errs:
-        #    iso = ind.loc[object, 'isofactor']
-#
-        #    if '_2as' in fe:
-        #        err=ind.loc[object,fe].astype(float)*iso
-        #        ferrs.append(err)
-            #else:
-            #    err = ind.loc[object,fe].astype(float)
-            #    ferrs.append(err)
-
-        #if 'UDS' in object:
-        #    offset = np.loadtxt("vandels/offsets_uds_ground.txt")
-        #    photometry = np.c_[flux,ferrs]
-        #    photometry[:,0]*=offset
-        #else:
-        #    offset = np.loadtxt("vandels/offsets_cdfs_ground.txt")
     else:
         print('HST CATALOGUES')
         if 'UDS' in object:
@@ -148,16 +119,13 @@ def load_vandels(object):
         if photometry[i, 0]/photometry[i, 1] > max_snr:
             photometry[i, 1] = photometry[i, 0]/max_snr
 
-
     return photometry
-
 
 #ID = 'UDS_HST035930'
 #print(load_vandels('UDS-HST035930'))
 #print(a_load.load_vandels_phot('UDS-GROUND195491SELECT'))
-print(load_vandels('UDS-GROUND195491SELECT'))
+#print(load_vandels('UDS-GROUND195491SELECT'))
 
-#'CDFS_GROUND000013'
 def load_vandels_spectra(ID):
     print(ID)
     globpath = os.path.join('vandelsspec/', '*.fits')
